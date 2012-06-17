@@ -1,0 +1,45 @@
+@mixin animate($anim: all 0.5s ease) {
+  @include transition($anim);
+  &.animate {
+    @content;
+  }
+}
+
+@mixin keyframes($name) {
+  @-webkit-keyframes #{$name} {
+    @content;
+  }
+  @-moz-keyframes #{$name} {
+    @content;
+  }
+  @-ms-keyframes #{$name} {
+    @content;
+  }
+  @keyframes #{$name} {
+    @content;
+  }
+}
+
+@mixin animation($value) {
+  -webkit-animation:$value;
+  -moz-animation:$value;
+  -ms-animation:$value;
+  -o-animation:$value;
+  animation:$value;
+}
+@mixin animation-delay($value) {
+  -webkit-animation-delay:$value;
+  -moz-animation-delay:$value;
+  -ms-animation-delay:$value;
+  -o-animation-delay:$value;
+  animation-delay:$value;
+}
+
+@include keyframes(fader) {
+  0% {
+    opacity:0;
+  }
+  100% {
+    opacity:1;
+  }
+}

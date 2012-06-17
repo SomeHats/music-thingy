@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>MusicThingy</title>
+    <link href='http://fonts.googleapis.com/css?family=Lato:100italic,100,300italic,300' rel='stylesheet' type='text/css'>
+    <link href="stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+  	<div id="flickrNotice" style="position:fixed; top:0; left:0; z-index:1000;">
+  		
+  	</div>
+  	<div id="loading">
+  		<h2>Loading<span>.</span><span>.</span><span>.</span></h2>
+  		<div id="progress" class="off"><div></div></div>
+  	</div>
+  	<div id="container" class="view1">
+	    <div id="v1" class="view">
+	    	<h1><span>MusicThingy</span></h1>
+	    	<div id="artistIn">
+				  <span class="label"><div>Play some </div></span> <input id="artist" autocomplete="off"><a id="cancel">x</a>
+				  <p>Who&rsquo;s your favourite band or musician?</p><a id="go">Go &gt;</a>
+	    	</div>
+	    </div>
+	    <div id="v2" class="view">
+	    	
+	    </div>
+	    <img src="img/bg.jpg" id="bg" alt="background">
+	</div>
+	<div id="cube">
+		<div id="geom">
+			<div id="top">
+				<div class="front face current">
+					<div class="panel p1">top 1 panel 1</div>
+					<div class="panel p2">top 1 panel 2</div>
+					<div class="panel p3">top 1 panel 3</div>
+				</div>
+				<div class="left face previous">
+					<div class="panel p1">top 2 panel 1</div>
+					<div class="panel p2">top 2 panel 2</div>
+					<div class="panel p3">top 2 panel 3</div>
+				</div>
+				<div class="back face rear">
+					<div class="panel p1">top 3 panel 1</div>
+					<div class="panel p2">top 3 panel 2</div>
+					<div class="panel p3">top 3 panel 3</div>
+				</div>
+				<div class="right face next">
+					<div class="panel p1">top 4 panel 1</div>
+					<div class="panel p2">top 4 panel 2</div>
+					<div class="panel p3">top 4 panel 3</div>
+				</div>
+			</div>
+			
+			<div id="bottom">
+				<div class="front face current">
+					<div class="panel p1">bottom 1 panel 1</div>
+					<div class="panel p2">bottom 1 panel 2</div>
+					<div class="panel p3">bottom 1 panel 3</div>
+				</div>
+				<div class="left face previous">
+					<div class="panel p1">bottom 2 panel 1</div>
+					<div class="panel p2">bottom 2 panel 2</div>
+					<div class="panel p3">bottom 2 panel 3</div>
+				</div>
+				<div class="back face rear">
+					<div class="panel p1">bottom 3 panel 1</div>
+					<div class="panel p2">bottom 3 panel 2</div>
+					<div class="panel p3">bottom 3 panel 3</div>
+				</div>
+				<div class="right face next">
+					<div class="panel p1">bottom 4 panel 1</div>
+					<div class="panel p2">bottom 4 panel 2</div>
+					<div class="panel p3">bottom 4 panel 3</div>
+				</div>
+			</div>
+			
+			<div id="left">
+				<div class="front face current">
+					<div class="panel p1">left 1 panel 1</div>
+					<div class="panel p2">left 1 panel 2</div>
+					<div class="panel p3">left 1 panel 3</div>
+				</div>
+				<div class="top face previous">
+					<div class="panel p1">left 2 panel 1</div>
+					<div class="panel p2">left 2 panel 2</div>
+					<div class="panel p3">left 2 panel 3</div>
+				</div>
+				<div class="back face rear">
+					<div class="panel p1">left 3 panel 1</div>
+					<div class="panel p2">left 3 panel 2</div>
+					<div class="panel p3">left 3 panel 3</div>
+				</div>
+				<div class="bottom face next">
+					<div class="panel p1">left 4 panel 1</div>
+					<div class="panel p2">left 4 panel 2</div>
+					<div class="panel p3">left 4 panel 3</div>
+				</div>
+			</div>
+			
+			<div id="right">
+				<div class="front face current">
+					<div class="panel p1">right 1 panel 1</div>
+					<div class="panel p2">right 1 panel 2</div>
+					<div class="panel p3">right 1 panel 3</div>
+				</div>
+				<div class="top face previous">
+					<div class="panel p1">right 2 panel 1</div>
+					<div class="panel p2">right 2 panel 2</div>
+					<div class="panel p3">right 2 panel 3</div>
+				</div>
+				<div class="back face rear">
+					<div class="panel p1">right 3 panel 1</div>
+					<div class="panel p2">right 3 panel 2</div>
+					<div class="panel p3">right 3 panel 3</div>
+				</div>
+				<div class="bottom face next">
+					<div class="panel p1">right 4 panel 1</div>
+					<div class="panel p2">right 4 panel 2</div>
+					<div class="panel p3">right 4 panel 3</div>
+				</div>
+			</div>
+		</div>
+		<div id="video"></div>
+	</div>
+	<div id="settings"><span class="button" id="speed">Speed: normal</span></div>
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/modernizr.js"></script>
+    <script type="text/javascript" src="js/lib/popcorn.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+    <script type="text/javascript" src="js/youtube.js"></script>
+    <script type="text/javascript" src="js/echonest.js"></script>
+    <script type="text/javascript" src="js/flickr.js"></script>
+    <script type="text/javascript" src="js/cube.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+  </body>
+</html>
