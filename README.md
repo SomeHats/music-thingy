@@ -2,6 +2,9 @@ MusicThingy
 ===========
 (that's a working title :P )
 
+###[Give it a go!](http://somehats.github.com/music-thingy/) - http://somehats.github.com/music-thingy/
+(A song with a really strong beat will work best!)
+
 Music visualisation thingy with [Popcorn.js](http://popcornjs.org/), CSS 3D transforms, and a load of open data APIs.
 
 This is very much a work-in-progress. I need to rewrite the entire song-selection bit with Backbone or Ember or something, and I need to fix the very hacky way that data is loaded from the various APIs.
