@@ -1,7 +1,7 @@
 template = require 'views/templates/option'
 
 module.exports = class OptionView extends Backbone.View
-  tagName: 'button'
+  tagName: 'span'
   className: 'option'
 
   initialize: ->

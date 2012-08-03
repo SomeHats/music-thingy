@@ -1,4 +1,6 @@
 OptionsView = require 'views/options'
+LoaderView = require 'views/loader'
+Loader = require 'models/loader'
 
 module.exports = class Application extends Backbone.View
   tagName: 'div'
@@ -7,11 +9,15 @@ module.exports = class Application extends Backbone.View
     Backbone.sync = (method, model, success, error) ->
       success()
 
+    @loader = new Loader
+    loader_view = new LoaderView
+      el: $('#loader')
+      model: @loader
+    console.log loader_view
+
     options = new OptionsView el: $('.options')
 
     speed = options.addOption
       label: 'Speed'
       options: [[4, 'slow'], [2, 'normal'], [1, 'fast']]
       active: 1
-
-    $(document).on 'click', -> console.log speed.value
