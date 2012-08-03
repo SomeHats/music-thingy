@@ -75,11 +75,15 @@
 })();
 
 window.require.define({"application": function(exports, require, module) {
-  var Application, OptionsView,
+  var Application, Loader, LoaderView, OptionsView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   OptionsView = require('views/options');
+
+  LoaderView = require('views/loader');
+
+  Loader = require('models/loader');
 
   module.exports = Application = (function(_super) {
 
@@ -92,49 +96,30 @@ window.require.define({"application": function(exports, require, module) {
     Application.prototype.tagName = 'div';
 
     Application.prototype.initialize = function() {
-      var options, speed;
+      var loader_view, options;
       Backbone.sync = function(method, model, success, error) {
         return success();
       };
+      this.loader = new Loader({
+        show: false
+      });
+      loader_view = new LoaderView({
+        el: $('#loader'),
+        model: this.loader
+      });
       options = new OptionsView({
         el: $('.options')
       });
-      speed = options.addOption({
+      return this.speed = options.addOption({
         label: 'Speed',
         options: [[4, 'slow'], [2, 'normal'], [1, 'fast']],
         active: 1
-      });
-      return $(document).on('click', function() {
-        return console.log(speed.value);
       });
     };
 
     return Application;
 
   })(Backbone.View);
-  
-}});
-
-window.require.define({"collections/list": function(exports, require, module) {
-  var Item, List,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Item = require('models/item');
-
-  module.exports = List = (function(_super) {
-
-    __extends(List, _super);
-
-    function List() {
-      return List.__super__.constructor.apply(this, arguments);
-    }
-
-    List.prototype.model = Item;
-
-    return List;
-
-  })(Backbone.Collection);
   
 }});
 
@@ -166,33 +151,68 @@ window.require.define({"initialize": function(exports, require, module) {
 
   Application = require('application');
 
-  $(function() {
-    var app;
-    app = new Application;
-    return $('#container').append(app.el);
+  $(document).on('ready', function() {
+    var App;
+    App = new Application;
+    $('#container').append(App.el);
+    return window.App = App;
   });
   
 }});
 
-window.require.define({"models/item": function(exports, require, module) {
-  var Item,
+window.require.define({"models/loader": function(exports, require, module) {
+  var Loader, Progress,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  module.exports = Item = (function(_super) {
+  Progress = (function(_super) {
 
-    __extends(Item, _super);
+    __extends(Progress, _super);
 
-    function Item() {
-      return Item.__super__.constructor.apply(this, arguments);
+    function Progress() {
+      return Progress.__super__.constructor.apply(this, arguments);
     }
 
-    Item.prototype.defaults = {
-      part1: 'Hello',
-      part2: 'Backbone'
+    Progress.prototype.defaults = {
+      show: false,
+      meter: 0.5
     };
 
-    return Item;
+    return Progress;
+
+  })(Backbone.Model);
+
+  module.exports = Loader = (function(_super) {
+
+    __extends(Loader, _super);
+
+    function Loader() {
+      return Loader.__super__.constructor.apply(this, arguments);
+    }
+
+    Loader.prototype.defaults = {
+      show: true,
+      progress: new Progress
+    };
+
+    Loader.prototype.show = function(loader) {
+      if (loader == null) {
+        loader = false;
+      }
+      this.set('show', true);
+      return this.get('progress').set('show', loader);
+    };
+
+    Loader.prototype.hide = function() {
+      this.set('show', false);
+      return this.get('progress').set('show', false);
+    };
+
+    Loader.prototype.progress = function(x) {
+      return this.get('progress').set('meter', x);
+    };
+
+    return Loader;
 
   })(Backbone.Model);
   
@@ -232,116 +252,64 @@ window.require.define({"models/option": function(exports, require, module) {
   
 }});
 
-window.require.define({"views/item": function(exports, require, module) {
-  var ItemView,
+window.require.define({"views/loader": function(exports, require, module) {
+  var LoaderView, template,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  module.exports = ItemView = (function(_super) {
+  template = require('views/templates/loader');
 
-    __extends(ItemView, _super);
+  module.exports = LoaderView = (function(_super) {
 
-    function ItemView() {
-      return ItemView.__super__.constructor.apply(this, arguments);
+    __extends(LoaderView, _super);
+
+    function LoaderView() {
+      return LoaderView.__super__.constructor.apply(this, arguments);
     }
 
-    ItemView.prototype.tagName = 'li';
+    LoaderView.prototype.tagName = 'div';
 
-    ItemView.prototype.initialize = function() {
+    LoaderView.prototype.initialize = function() {
       _.bindAll(this);
-      this.model.on('change', this.render);
-      return this.model.on('remove', this.remove);
-    };
-
-    ItemView.prototype.render = function() {
-      $(this.el).html("<span>" + (this.model.get('part1')) + " " + (this.model.get('part2')) + "!</span>\n<span class=\"swap\">swap</span>\n<span class=\"delete\">delete</span>");
-      return this;
-    };
-
-    ItemView.prototype.unrender = function() {
-      return $(this.el).remove();
-    };
-
-    ItemView.prototype.swap = function() {
-      return this.model.set({
-        part1: this.model.get('part2'),
-        part2: this.model.get('part1')
-      });
-    };
-
-    ItemView.prototype.remove = function() {
-      return this.model.destroy();
-    };
-
-    ItemView.prototype.events = {
-      'click .swap': 'swap',
-      'click .delete': 'remove'
-    };
-
-    return ItemView;
-
-  })(Backbone.View);
-  
-}});
-
-window.require.define({"views/list": function(exports, require, module) {
-  var Item, ItemView, List, ListView,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  List = require('collections/list');
-
-  Item = require('models/item');
-
-  ItemView = require('views/item');
-
-  module.exports = ListView = (function(_super) {
-
-    __extends(ListView, _super);
-
-    function ListView() {
-      return ListView.__super__.constructor.apply(this, arguments);
-    }
-
-    ListView.prototype.tagName = 'div';
-
-    ListView.prototype.initialize = function() {
-      _.bindAll(this);
-      this.collection = new List;
-      this.collection.bind('add', this.appendItem);
-      this.counter = 0;
+      this.progress = this.model.get('progress');
+      this.model.on('change:show', this.visibility);
+      this.progress.on('change:show', this.progressVisibility);
+      this.progress.on('change:meter', this.progressMeter);
+      this.template = template;
       return this.render();
     };
 
-    ListView.prototype.render = function() {
-      $(this.el).append('<button>Add List Item</button>');
-      $(this.el).append('<ul></ul>');
-      return this.appendTo = $(this.el).find('ul');
+    LoaderView.prototype.render = function() {
+      this.$el.html(this.template());
+      this.$progressEl = this.$el.find('#progress');
+      this.$meterEl = this.$progressEl.find('div');
+      this.visibility();
+      this.progressVisibility();
+      this.progressMeter();
+      return this;
     };
 
-    ListView.prototype.addItem = function() {
-      var item;
-      this.counter++;
-      item = new Item;
-      item.set({
-        part2: "" + (item.get('part2')) + " " + this.counter
-      });
-      return this.collection.add(item);
+    LoaderView.prototype.visibility = function() {
+      if (this.model.get('show')) {
+        return this.$el.removeClass('off');
+      } else {
+        return this.$el.addClass('off');
+      }
     };
 
-    ListView.prototype.appendItem = function(item) {
-      var item_view;
-      item_view = new ItemView({
-        model: item
-      });
-      return this.appendTo.append(item_view.render().el);
+    LoaderView.prototype.progressVisibility = function() {
+      if (this.progress.get('show')) {
+        return this.$progressEl.removeClass('off');
+      } else {
+        return this.$progressEl.addClass('off');
+      }
     };
 
-    ListView.prototype.events = {
-      'click button': 'addItem'
+    LoaderView.prototype.progressMeter = function() {
+      return this.$meterEl.css('width', this.progress.get('meter') * 100 + '%');
     };
 
-    return ListView;
+    return LoaderView;
 
   })(Backbone.View);
   
@@ -362,7 +330,7 @@ window.require.define({"views/option": function(exports, require, module) {
       return OptionView.__super__.constructor.apply(this, arguments);
     }
 
-    OptionView.prototype.tagName = 'button';
+    OptionView.prototype.tagName = 'span';
 
     OptionView.prototype.className = 'option';
 
@@ -455,6 +423,15 @@ window.require.define({"views/options": function(exports, require, module) {
 
   })(Backbone.View);
   
+}});
+
+window.require.define({"views/templates/loader": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var foundHelper, self=this;
+
+
+    return "<h2>\n  Loading<span>.</span><span>.</span><span>.</span>\n</h2>\n<div id=\"progress\">\n  <div></div>\n</div>\n";});
 }});
 
 window.require.define({"views/templates/option": function(exports, require, module) {

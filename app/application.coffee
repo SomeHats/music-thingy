@@ -9,15 +9,14 @@ module.exports = class Application extends Backbone.View
     Backbone.sync = (method, model, success, error) ->
       success()
 
-    @loader = new Loader
+    @loader = new Loader show:false
     loader_view = new LoaderView
       el: $('#loader')
       model: @loader
-    console.log loader_view
 
     options = new OptionsView el: $('.options')
 
-    speed = options.addOption
+    @speed = options.addOption
       label: 'Speed'
       options: [[4, 'slow'], [2, 'normal'], [1, 'fast']]
       active: 1

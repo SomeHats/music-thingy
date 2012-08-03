@@ -35,7 +35,6 @@ module.exports = class LoaderView extends Backbone.View
       @$el.addClass 'off'
 
   progressVisibility: ->
-    console.log @$progressEl
     if @progress.get 'show'
       @$progressEl.removeClass 'off'
     else
