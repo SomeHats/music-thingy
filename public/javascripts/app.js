@@ -75,21 +75,11 @@
 })();
 
 window.require.define({"application": function(exports, require, module) {
-  var Application, Chaplin, HeaderController, Layout, SessionController, mediator, routes,
+  var Application, OptionsView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Chaplin = require('chaplin');
-
-  mediator = require('mediator');
-
-  routes = require('routes');
-
-  SessionController = require('controllers/session_controller');
-
-  HeaderController = require('controllers/header_controller');
-
-  Layout = require('views/layout');
+  OptionsView = require('views/options');
 
   module.exports = Application = (function(_super) {
 
@@ -99,268 +89,75 @@ window.require.define({"application": function(exports, require, module) {
       return Application.__super__.constructor.apply(this, arguments);
     }
 
-    Application.prototype.title = 'Brunch example application';
+    Application.prototype.tagName = 'div';
 
     Application.prototype.initialize = function() {
-      Application.__super__.initialize.apply(this, arguments);
-      this.initDispatcher();
-      this.initLayout();
-      this.initMediator();
-      this.initControllers();
-      this.initRouter(routes);
-      return typeof Object.freeze === "function" ? Object.freeze(this) : void 0;
-    };
-
-    Application.prototype.initLayout = function() {
-      return this.layout = new Layout({
-        title: this.title
+      var options, speed;
+      Backbone.sync = function(method, model, success, error) {
+        return success();
+      };
+      options = new OptionsView({
+        el: $('.options')
       });
-    };
-
-    Application.prototype.initControllers = function() {
-      new SessionController();
-      return new HeaderController();
-    };
-
-    Application.prototype.initMediator = function() {
-      Chaplin.mediator.user = null;
-      return Chaplin.mediator.seal();
+      speed = options.addOption({
+        label: 'Speed',
+        options: [[4, 'slow'], [2, 'normal'], [1, 'fast']],
+        active: 1
+      });
+      return $(document).on('click', function() {
+        return console.log(speed.value);
+      });
     };
 
     return Application;
 
-  })(Chaplin.Application);
+  })(Backbone.View);
   
 }});
 
-window.require.define({"controllers/base/controller": function(exports, require, module) {
-  var Chaplin, Controller,
+window.require.define({"collections/list": function(exports, require, module) {
+  var Item, List,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Chaplin = require('chaplin');
+  Item = require('models/item');
 
-  module.exports = Controller = (function(_super) {
+  module.exports = List = (function(_super) {
 
-    __extends(Controller, _super);
+    __extends(List, _super);
 
-    function Controller() {
-      return Controller.__super__.constructor.apply(this, arguments);
+    function List() {
+      return List.__super__.constructor.apply(this, arguments);
     }
 
-    return Controller;
+    List.prototype.model = Item;
 
-  })(Chaplin.Controller);
+    return List;
+
+  })(Backbone.Collection);
   
 }});
 
-window.require.define({"controllers/header_controller": function(exports, require, module) {
-  var Controller, Header, HeaderController, HeaderView, mediator,
+window.require.define({"collections/options": function(exports, require, module) {
+  var Option,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Controller = require('controllers/base/controller');
+  Option = require('models/option');
 
-  mediator = require('mediator');
+  module.exports = Option = (function(_super) {
 
-  Header = require('models/header');
+    __extends(Option, _super);
 
-  HeaderView = require('views/header_view');
-
-  module.exports = HeaderController = (function(_super) {
-
-    __extends(HeaderController, _super);
-
-    function HeaderController() {
-      return HeaderController.__super__.constructor.apply(this, arguments);
+    function Option() {
+      return Option.__super__.constructor.apply(this, arguments);
     }
 
-    HeaderController.prototype.initialize = function() {
-      HeaderController.__super__.initialize.apply(this, arguments);
-      this.model = new Header();
-      return this.view = new HeaderView({
-        model: this.model
-      });
-    };
+    Option.prototype.model = Option;
 
-    return HeaderController;
+    return Option;
 
-  })(Controller);
-  
-}});
-
-window.require.define({"controllers/home_controller": function(exports, require, module) {
-  var Controller, HomeController, HomePageView,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Controller = require('controllers/base/controller');
-
-  HomePageView = require('views/home_page_view');
-
-  module.exports = HomeController = (function(_super) {
-
-    __extends(HomeController, _super);
-
-    function HomeController() {
-      return HomeController.__super__.constructor.apply(this, arguments);
-    }
-
-    HomeController.prototype.historyURL = 'home';
-
-    HomeController.prototype.index = function() {
-      return this.view = new HomePageView();
-    };
-
-    return HomeController;
-
-  })(Controller);
-  
-}});
-
-window.require.define({"controllers/session_controller": function(exports, require, module) {
-  var Controller, LoginView, SessionController, User, mediator,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  mediator = require('mediator');
-
-  Controller = require('controllers/base/controller');
-
-  User = require('models/user');
-
-  LoginView = require('views/login_view');
-
-  module.exports = SessionController = (function(_super) {
-
-    __extends(SessionController, _super);
-
-    function SessionController() {
-      this.logout = __bind(this.logout, this);
-
-      this.serviceProviderSession = __bind(this.serviceProviderSession, this);
-
-      this.triggerLogin = __bind(this.triggerLogin, this);
-      return SessionController.__super__.constructor.apply(this, arguments);
-    }
-
-    SessionController.serviceProviders = {};
-
-    SessionController.prototype.loginStatusDetermined = false;
-
-    SessionController.prototype.loginView = null;
-
-    SessionController.prototype.serviceProviderName = null;
-
-    SessionController.prototype.initialize = function() {
-      this.subscribeEvent('serviceProviderSession', this.serviceProviderSession);
-      this.subscribeEvent('logout', this.logout);
-      this.subscribeEvent('userData', this.userData);
-      this.subscribeEvent('!showLogin', this.showLoginView);
-      this.subscribeEvent('!login', this.triggerLogin);
-      this.subscribeEvent('!logout', this.triggerLogout);
-      return this.getSession();
-    };
-
-    SessionController.prototype.loadServiceProviders = function() {
-      var name, serviceProvider, _ref, _results;
-      _ref = SessionController.serviceProviders;
-      _results = [];
-      for (name in _ref) {
-        serviceProvider = _ref[name];
-        _results.push(serviceProvider.load());
-      }
-      return _results;
-    };
-
-    SessionController.prototype.createUser = function(userData) {
-      return mediator.user = new User(userData);
-    };
-
-    SessionController.prototype.getSession = function() {
-      var name, serviceProvider, _ref, _results;
-      this.loadServiceProviders();
-      _ref = SessionController.serviceProviders;
-      _results = [];
-      for (name in _ref) {
-        serviceProvider = _ref[name];
-        _results.push(serviceProvider.done(serviceProvider.getLoginStatus));
-      }
-      return _results;
-    };
-
-    SessionController.prototype.showLoginView = function() {
-      if (this.loginView) {
-        return;
-      }
-      this.loadServiceProviders();
-      return this.loginView = new LoginView({
-        serviceProviders: SessionController.serviceProviders
-      });
-    };
-
-    SessionController.prototype.triggerLogin = function(serviceProviderName) {
-      var serviceProvider;
-      serviceProvider = SessionController.serviceProviders[serviceProviderName];
-      if (!serviceProvider.isLoaded()) {
-        mediator.publish('serviceProviderMissing', serviceProviderName);
-        return;
-      }
-      mediator.publish('loginAttempt', serviceProviderName);
-      return serviceProvider.triggerLogin();
-    };
-
-    SessionController.prototype.serviceProviderSession = function(session) {
-      this.serviceProviderName = session.provider.name;
-      this.disposeLoginView();
-      session.id = session.userId;
-      delete session.userId;
-      this.createUser(session);
-      return this.publishLogin();
-    };
-
-    SessionController.prototype.publishLogin = function() {
-      this.loginStatusDetermined = true;
-      mediator.publish('login', mediator.user);
-      return mediator.publish('loginStatus', true);
-    };
-
-    SessionController.prototype.triggerLogout = function() {
-      return mediator.publish('logout');
-    };
-
-    SessionController.prototype.logout = function() {
-      this.loginStatusDetermined = true;
-      this.disposeUser();
-      this.serviceProviderName = null;
-      this.showLoginView();
-      return mediator.publish('loginStatus', false);
-    };
-
-    SessionController.prototype.userData = function(data) {
-      return mediator.user.set(data);
-    };
-
-    SessionController.prototype.disposeLoginView = function() {
-      if (!this.loginView) {
-        return;
-      }
-      this.loginView.dispose();
-      return this.loginView = null;
-    };
-
-    SessionController.prototype.disposeUser = function() {
-      if (!mediator.user) {
-        return;
-      }
-      mediator.user.dispose();
-      return mediator.user = null;
-    };
-
-    return SessionController;
-
-  })(Controller);
+  })(Backbone.Collection);
   
 }});
 
@@ -371,714 +168,311 @@ window.require.define({"initialize": function(exports, require, module) {
 
   $(function() {
     var app;
-    app = new Application();
-    return app.initialize();
+    app = new Application;
+    return $('#container').append(app.el);
   });
   
 }});
 
-window.require.define({"lib/services/service_provider": function(exports, require, module) {
-  var Chaplin, ServiceProvider, utils;
+window.require.define({"models/item": function(exports, require, module) {
+  var Item,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  utils = require('lib/utils');
+  module.exports = Item = (function(_super) {
 
-  Chaplin = require('chaplin');
+    __extends(Item, _super);
 
-  module.exports = ServiceProvider = (function() {
+    function Item() {
+      return Item.__super__.constructor.apply(this, arguments);
+    }
 
-    _(ServiceProvider.prototype).extend(Chaplin.Subscriber);
+    Item.prototype.defaults = {
+      part1: 'Hello',
+      part2: 'Backbone'
+    };
 
-    ServiceProvider.prototype.loading = false;
+    return Item;
 
-    function ServiceProvider() {
-      _(this).extend($.Deferred());
-      utils.deferMethods({
-        deferred: this,
-        methods: ['triggerLogin', 'getLoginStatus'],
-        onDeferral: this.load
+  })(Backbone.Model);
+  
+}});
+
+window.require.define({"models/option": function(exports, require, module) {
+  var Option,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  module.exports = Option = (function(_super) {
+
+    __extends(Option, _super);
+
+    function Option() {
+      return Option.__super__.constructor.apply(this, arguments);
+    }
+
+    Option.prototype.defaults = {
+      label: 'button',
+      options: [[1, 'One'], [2, 'Two'], [3, 'Three']],
+      active: 0
+    };
+
+    Option.prototype.update = function() {
+      return this.value = this.get('options')[this.get('active')][0];
+    };
+
+    Option.prototype.initialize = function() {
+      this.update();
+      return this.on('change', this.update);
+    };
+
+    return Option;
+
+  })(Backbone.Model);
+  
+}});
+
+window.require.define({"views/item": function(exports, require, module) {
+  var ItemView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  module.exports = ItemView = (function(_super) {
+
+    __extends(ItemView, _super);
+
+    function ItemView() {
+      return ItemView.__super__.constructor.apply(this, arguments);
+    }
+
+    ItemView.prototype.tagName = 'li';
+
+    ItemView.prototype.initialize = function() {
+      _.bindAll(this);
+      this.model.on('change', this.render);
+      return this.model.on('remove', this.remove);
+    };
+
+    ItemView.prototype.render = function() {
+      $(this.el).html("<span>" + (this.model.get('part1')) + " " + (this.model.get('part2')) + "!</span>\n<span class=\"swap\">swap</span>\n<span class=\"delete\">delete</span>");
+      return this;
+    };
+
+    ItemView.prototype.unrender = function() {
+      return $(this.el).remove();
+    };
+
+    ItemView.prototype.swap = function() {
+      return this.model.set({
+        part1: this.model.get('part2'),
+        part2: this.model.get('part1')
       });
-    }
-
-    ServiceProvider.prototype.disposed = false;
-
-    ServiceProvider.prototype.dispose = function() {
-      if (this.disposed) {
-        return;
-      }
-      this.unsubscribeAllEvents();
-      this.disposed = true;
-      return typeof Object.freeze === "function" ? Object.freeze(this) : void 0;
     };
 
-    return ServiceProvider;
+    ItemView.prototype.remove = function() {
+      return this.model.destroy();
+    };
 
-  })();
+    ItemView.prototype.events = {
+      'click .swap': 'swap',
+      'click .delete': 'remove'
+    };
 
-  /*
+    return ItemView;
 
-    Standard methods and their signatures:
-
-    load: ->
-      # Load a script like this:
-      utils.loadLib 'http://example.org/foo.js', @loadHandler, @reject
-
-    loadHandler: =>
-      # Init the library, then resolve
-      ServiceProviderLibrary.init(foo: 'bar')
-      @resolve()
-
-    isLoaded: ->
-      # Return a Boolean
-      Boolean window.ServiceProviderLibrary and ServiceProviderLibrary.login
-
-    # Trigger login popup
-    triggerLogin: (loginContext) ->
-      callback = _(@loginHandler).bind(this, loginContext)
-      ServiceProviderLibrary.login callback
-
-    # Callback for the login popup
-    loginHandler: (loginContext, response) =>
-
-      eventPayload = {provider: this, loginContext}
-      if response
-        # Publish successful login
-        mediator.publish 'loginSuccessful', eventPayload
-
-        # Publish the session
-        mediator.publish 'serviceProviderSession',
-          provider: this
-          userId: response.userId
-          accessToken: response.accessToken
-          # etc.
-
-      else
-        mediator.publish 'loginFail', eventPayload
-
-    getLoginStatus: (callback = @loginStatusHandler, force = false) ->
-      ServiceProviderLibrary.getLoginStatus callback, force
-
-    loginStatusHandler: (response) =>
-      return unless response
-      mediator.publish 'serviceProviderSession',
-        provider: this
-        userId: response.userId
-        accessToken: response.accessToken
-        # etc.
-  */
-
+  })(Backbone.View);
   
 }});
 
-window.require.define({"lib/support": function(exports, require, module) {
-  var Chaplin, support, utils;
+window.require.define({"views/list": function(exports, require, module) {
+  var Item, ItemView, List, ListView,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Chaplin = require('chaplin');
+  List = require('collections/list');
 
-  utils = require('lib/utils');
+  Item = require('models/item');
 
-  support = utils.beget(Chaplin.support);
+  ItemView = require('views/item');
 
-  module.exports = support;
+  module.exports = ListView = (function(_super) {
+
+    __extends(ListView, _super);
+
+    function ListView() {
+      return ListView.__super__.constructor.apply(this, arguments);
+    }
+
+    ListView.prototype.tagName = 'div';
+
+    ListView.prototype.initialize = function() {
+      _.bindAll(this);
+      this.collection = new List;
+      this.collection.bind('add', this.appendItem);
+      this.counter = 0;
+      return this.render();
+    };
+
+    ListView.prototype.render = function() {
+      $(this.el).append('<button>Add List Item</button>');
+      $(this.el).append('<ul></ul>');
+      return this.appendTo = $(this.el).find('ul');
+    };
+
+    ListView.prototype.addItem = function() {
+      var item;
+      this.counter++;
+      item = new Item;
+      item.set({
+        part2: "" + (item.get('part2')) + " " + this.counter
+      });
+      return this.collection.add(item);
+    };
+
+    ListView.prototype.appendItem = function(item) {
+      var item_view;
+      item_view = new ItemView({
+        model: item
+      });
+      return this.appendTo.append(item_view.render().el);
+    };
+
+    ListView.prototype.events = {
+      'click button': 'addItem'
+    };
+
+    return ListView;
+
+  })(Backbone.View);
   
 }});
 
-window.require.define({"lib/utils": function(exports, require, module) {
-  var Chaplin, mediator, utils,
-    __hasProp = {}.hasOwnProperty;
+window.require.define({"views/option": function(exports, require, module) {
+  var OptionView, template,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Chaplin = require('chaplin');
+  template = require('views/templates/option');
 
-  mediator = require('mediator');
+  module.exports = OptionView = (function(_super) {
 
-  utils = Chaplin.utils.beget(Chaplin.utils);
+    __extends(OptionView, _super);
 
-  _(utils).extend({
-    /*
-      Wrap methods so they can be called before a deferred is resolved.
-      The actual methods are called once the deferred is resolved.
-    
-      Parameters:
-    
-      Expects an options hash with the following properties:
-    
-      deferred
-        The Deferred object to wait for.
-    
-      methods
-        Either:
-        - A string with a method name e.g. 'method'
-        - An array of strings e.g. ['method1', 'method2']
-        - An object with methods e.g. {method: -> alert('resolved!')}
-    
-      host (optional)
-        If you pass an array of strings in the `methods` parameter the methods
-        are fetched from this object. Defaults to `deferred`.
-    
-      target (optional)
-        The target object the new wrapper methods are created at.
-        Defaults to host if host is given, otherwise it defaults to deferred.
-    
-      onDeferral (optional)
-        An additional callback function which is invoked when the method is called
-        and the Deferred isn't resolved yet.
-        After the method is registered as a done handler on the Deferred,
-        this callback is invoked. This can be used to trigger the resolving
-        of the Deferred.
-    
-      Examples:
-    
-      deferMethods(deferred: def, methods: 'foo')
-        Wrap the method named foo of the given deferred def and
-        postpone all calls until the deferred is resolved.
-    
-      deferMethods(deferred: def, methods: def.specialMethods)
-        Read all methods from the hash def.specialMethods and
-        create wrapped methods with the same names at def.
-    
-      deferMethods(
-        deferred: def, methods: def.specialMethods, target: def.specialMethods
-      )
-        Read all methods from the object def.specialMethods and
-        create wrapped methods at def.specialMethods,
-        overwriting the existing ones.
-    
-      deferMethods(deferred: def, host: obj, methods: ['foo', 'bar'])
-        Wrap the methods obj.foo and obj.bar so all calls to them are postponed
-        until def is resolved. obj.foo and obj.bar are overwritten
-        with their wrappers.
-    */
+    function OptionView() {
+      return OptionView.__super__.constructor.apply(this, arguments);
+    }
 
-    deferMethods: function(options) {
-      var deferred, func, host, methods, methodsHash, name, onDeferral, target, _i, _len, _results;
-      deferred = options.deferred;
-      methods = options.methods;
-      host = options.host || deferred;
-      target = options.target || host;
-      onDeferral = options.onDeferral;
-      methodsHash = {};
-      if (typeof methods === 'string') {
-        methodsHash[methods] = host[methods];
-      } else if (methods.length && methods[0]) {
-        for (_i = 0, _len = methods.length; _i < _len; _i++) {
-          name = methods[_i];
-          func = host[name];
-          if (typeof func !== 'function') {
-            throw new TypeError("utils.deferMethods: method " + name + " notfound on host " + host);
-          }
-          methodsHash[name] = func;
-        }
-      } else {
-        methodsHash = methods;
-      }
-      _results = [];
-      for (name in methodsHash) {
-        if (!__hasProp.call(methodsHash, name)) continue;
-        func = methodsHash[name];
-        if (typeof func !== 'function') {
-          continue;
-        }
-        _results.push(target[name] = utils.createDeferredFunction(deferred, func, target, onDeferral));
-      }
-      return _results;
-    },
-    createDeferredFunction: function(deferred, func, context, onDeferral) {
-      if (context == null) {
-        context = deferred;
-      }
-      return function() {
-        var args;
-        args = arguments;
-        if (deferred.state() === 'resolved') {
-          return func.apply(context, args);
-        } else {
-          deferred.done(function() {
-            return func.apply(context, args);
-          });
-          if (typeof onDeferral === 'function') {
-            return onDeferral.apply(context);
-          }
-        }
+    OptionView.prototype.tagName = 'button';
+
+    OptionView.prototype.className = 'option';
+
+    OptionView.prototype.initialize = function() {
+      _.bindAll(this);
+      this.model.on('change', this.render);
+      this.model.on('remove', this.remove);
+      return this.template = template;
+    };
+
+    OptionView.prototype.render = function() {
+      var context;
+      context = {
+        label: this.model.get('label'),
+        active: this.model.get('options')[this.model.get('active')][1]
       };
-    }
-  });
-
-  module.exports = utils;
-  
-}});
-
-window.require.define({"lib/view_helper": function(exports, require, module) {
-  var mediator, utils;
-
-  mediator = require('mediator');
-
-  utils = require('chaplin/lib/utils');
-
-  Handlebars.registerHelper('if_logged_in', function(options) {
-    if (mediator.user) {
-      return options.fn(this);
-    } else {
-      return options.inverse(this);
-    }
-  });
-
-  Handlebars.registerHelper('with', function(context, options) {
-    if (!context || Handlebars.Utils.isEmpty(context)) {
-      return options.inverse(this);
-    } else {
-      return options.fn(context);
-    }
-  });
-
-  Handlebars.registerHelper('without', function(context, options) {
-    var inverse;
-    inverse = options.inverse;
-    options.inverse = options.fn;
-    options.fn = inverse;
-    return Handlebars.helpers["with"].call(this, context, options);
-  });
-
-  Handlebars.registerHelper('with_user', function(options) {
-    var context;
-    context = mediator.user || {};
-    return Handlebars.helpers["with"].call(this, context, options);
-  });
-  
-}});
-
-window.require.define({"mediator": function(exports, require, module) {
-  
-  module.exports = require('chaplin').mediator;
-  
-}});
-
-window.require.define({"models/base/collection": function(exports, require, module) {
-  var Chaplin, Collection,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Chaplin = require('chaplin');
-
-  module.exports = Collection = (function(_super) {
-
-    __extends(Collection, _super);
-
-    function Collection() {
-      return Collection.__super__.constructor.apply(this, arguments);
-    }
-
-    return Collection;
-
-  })(Chaplin.Collection);
-  
-}});
-
-window.require.define({"models/base/model": function(exports, require, module) {
-  var Chaplin, Model,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Chaplin = require('chaplin');
-
-  module.exports = Model = (function(_super) {
-
-    __extends(Model, _super);
-
-    function Model() {
-      return Model.__super__.constructor.apply(this, arguments);
-    }
-
-    return Model;
-
-  })(Chaplin.Model);
-  
-}});
-
-window.require.define({"models/header": function(exports, require, module) {
-  var Header, Model,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Model = require('models/base/model');
-
-  module.exports = Header = (function(_super) {
-
-    __extends(Header, _super);
-
-    function Header() {
-      return Header.__super__.constructor.apply(this, arguments);
-    }
-
-    Header.prototype.defaults = {
-      items: [
-        {
-          href: 'http://brunch.readthedocs.org/',
-          title: 'Documentation'
-        }, {
-          href: 'https://github.com/brunch/brunch/issues',
-          title: 'Github Issues'
-        }, {
-          href: 'https://github.com/brunch/twitter',
-          title: 'Twitter Example App'
-        }
-      ]
+      this.$el.html(this.template(context));
+      return this;
     };
 
-    return Header;
+    OptionView.prototype.events = {
+      "click": "update"
+    };
 
-  })(Model);
-  
-}});
-
-window.require.define({"models/user": function(exports, require, module) {
-  var Model, User,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Model = require('models/base/model');
-
-  module.exports = User = (function(_super) {
-
-    __extends(User, _super);
-
-    function User() {
-      return User.__super__.constructor.apply(this, arguments);
-    }
-
-    return User;
-
-  })(Model);
-  
-}});
-
-window.require.define({"routes": function(exports, require, module) {
-  
-  module.exports = function(match) {
-    return match('', 'home#index');
-  };
-  
-}});
-
-window.require.define({"views/base/collection_view": function(exports, require, module) {
-  var Chaplin, CollectionView, View,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Chaplin = require('chaplin');
-
-  View = require('views/base/view');
-
-  module.exports = CollectionView = (function(_super) {
-
-    __extends(CollectionView, _super);
-
-    function CollectionView() {
-      return CollectionView.__super__.constructor.apply(this, arguments);
-    }
-
-    CollectionView.prototype.getTemplateFunction = View.prototype.getTemplateFunction;
-
-    return CollectionView;
-
-  })(Chaplin.CollectionView);
-  
-}});
-
-window.require.define({"views/base/page_view": function(exports, require, module) {
-  var PageView, View, mediator,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  mediator = require('mediator');
-
-  View = require('views/base/view');
-
-  module.exports = PageView = (function(_super) {
-
-    __extends(PageView, _super);
-
-    function PageView() {
-      return PageView.__super__.constructor.apply(this, arguments);
-    }
-
-    PageView.prototype.container = '#page-container';
-
-    PageView.prototype.autoRender = true;
-
-    PageView.prototype.renderedSubviews = false;
-
-    PageView.prototype.initialize = function() {
-      var rendered,
-        _this = this;
-      PageView.__super__.initialize.apply(this, arguments);
-      if (this.model || this.collection) {
-        rendered = false;
-        return this.modelBind('change', function() {
-          if (!rendered) {
-            _this.render();
-          }
-          return rendered = true;
-        });
+    OptionView.prototype.update = function() {
+      var active, options;
+      options = this.model.get('options');
+      active = this.model.get('active');
+      active += 1;
+      if (options.length <= active) {
+        active = 0;
       }
+      return this.model.set('active', active);
     };
 
-    PageView.prototype.renderSubviews = function() {};
+    return OptionView;
 
-    PageView.prototype.render = function() {
-      PageView.__super__.render.apply(this, arguments);
-      if (!this.renderedSubviews) {
-        this.renderSubviews();
-        return this.renderedSubviews = true;
-      }
-    };
-
-    return PageView;
-
-  })(View);
+  })(Backbone.View);
   
 }});
 
-window.require.define({"views/base/view": function(exports, require, module) {
-  var Chaplin, View,
+window.require.define({"views/options": function(exports, require, module) {
+  var OpionsView, Option, OptionView, Options,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Chaplin = require('chaplin');
+  Options = require('collections/options');
 
-  require('lib/view_helper');
+  Option = require('models/option');
 
-  module.exports = View = (function(_super) {
+  OptionView = require('views/option');
 
-    __extends(View, _super);
+  module.exports = OpionsView = (function(_super) {
 
-    function View() {
-      return View.__super__.constructor.apply(this, arguments);
+    __extends(OpionsView, _super);
+
+    function OpionsView() {
+      return OpionsView.__super__.constructor.apply(this, arguments);
     }
 
-    View.prototype.getTemplateFunction = function() {
-      return this.template;
+    OpionsView.prototype.tagName = 'div';
+
+    OpionsView.prototype.className = 'options';
+
+    OpionsView.prototype.initialize = function() {
+      _.bindAll(this);
+      this.collection = new Options;
+      this.collection.on('add', this.appendOption);
+      return this.render();
     };
 
-    return View;
+    OpionsView.prototype.render = function() {};
 
-  })(Chaplin.View);
+    OpionsView.prototype.addOption = function(options) {
+      var option;
+      option = new Option(options);
+      this.collection.add(option);
+      return option;
+    };
+
+    OpionsView.prototype.appendOption = function(option) {
+      var option_view;
+      option_view = new OptionView({
+        model: option
+      });
+      return this.$el.append(option_view.render().el);
+    };
+
+    return OpionsView;
+
+  })(Backbone.View);
   
 }});
 
-window.require.define({"views/header_view": function(exports, require, module) {
-  var HeaderView, View, mediator, template,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  mediator = require('mediator');
-
-  View = require('views/base/view');
-
-  template = require('views/templates/header');
-
-  module.exports = HeaderView = (function(_super) {
-
-    __extends(HeaderView, _super);
-
-    function HeaderView() {
-      return HeaderView.__super__.constructor.apply(this, arguments);
-    }
-
-    HeaderView.prototype.template = template;
-
-    HeaderView.prototype.id = 'header';
-
-    HeaderView.prototype.className = 'header';
-
-    HeaderView.prototype.container = '#header-container';
-
-    HeaderView.prototype.autoRender = true;
-
-    HeaderView.prototype.initialize = function() {
-      HeaderView.__super__.initialize.apply(this, arguments);
-      this.subscribeEvent('loginStatus', this.render);
-      return this.subscribeEvent('startupController', this.render);
-    };
-
-    return HeaderView;
-
-  })(View);
-  
-}});
-
-window.require.define({"views/home_page_view": function(exports, require, module) {
-  var HomePageView, PageView, template,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  template = require('views/templates/home');
-
-  PageView = require('views/base/page_view');
-
-  module.exports = HomePageView = (function(_super) {
-
-    __extends(HomePageView, _super);
-
-    function HomePageView() {
-      return HomePageView.__super__.constructor.apply(this, arguments);
-    }
-
-    HomePageView.prototype.template = template;
-
-    HomePageView.prototype.className = 'home-page';
-
-    return HomePageView;
-
-  })(PageView);
-  
-}});
-
-window.require.define({"views/layout": function(exports, require, module) {
-  var Chaplin, Layout,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  Chaplin = require('chaplin');
-
-  module.exports = Layout = (function(_super) {
-
-    __extends(Layout, _super);
-
-    function Layout() {
-      return Layout.__super__.constructor.apply(this, arguments);
-    }
-
-    Layout.prototype.initialize = function() {
-      return Layout.__super__.initialize.apply(this, arguments);
-    };
-
-    return Layout;
-
-  })(Chaplin.Layout);
-  
-}});
-
-window.require.define({"views/login_view": function(exports, require, module) {
-  var LoginView, View, mediator, template, utils,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  mediator = require('mediator');
-
-  utils = require('lib/utils');
-
-  View = require('views/base/view');
-
-  template = require('views/templates/login');
-
-  module.exports = LoginView = (function(_super) {
-
-    __extends(LoginView, _super);
-
-    function LoginView() {
-      return LoginView.__super__.constructor.apply(this, arguments);
-    }
-
-    LoginView.prototype.template = template;
-
-    LoginView.prototype.id = 'login';
-
-    LoginView.prototype.container = '#content-container';
-
-    LoginView.prototype.autoRender = true;
-
-    LoginView.prototype.initialize = function(options) {
-      LoginView.__super__.initialize.apply(this, arguments);
-      return this.initButtons(options.serviceProviders);
-    };
-
-    LoginView.prototype.initButtons = function(serviceProviders) {
-      var buttonSelector, failed, loaded, loginHandler, serviceProvider, serviceProviderName, _results;
-      _results = [];
-      for (serviceProviderName in serviceProviders) {
-        serviceProvider = serviceProviders[serviceProviderName];
-        buttonSelector = "." + serviceProviderName;
-        this.$(buttonSelector).addClass('service-loading');
-        loginHandler = _(this.loginWith).bind(this, serviceProviderName, serviceProvider);
-        this.delegate('click', buttonSelector, loginHandler);
-        loaded = _(this.serviceProviderLoaded).bind(this, serviceProviderName, serviceProvider);
-        serviceProvider.done(loaded);
-        failed = _(this.serviceProviderFailed).bind(this, serviceProviderName, serviceProvider);
-        _results.push(serviceProvider.fail(failed));
-      }
-      return _results;
-    };
-
-    LoginView.prototype.loginWith = function(serviceProviderName, serviceProvider, e) {
-      e.preventDefault();
-      if (!serviceProvider.isLoaded()) {
-        return;
-      }
-      mediator.publish('login:pickService', serviceProviderName);
-      return mediator.publish('!login', serviceProviderName);
-    };
-
-    LoginView.prototype.serviceProviderLoaded = function(serviceProviderName) {
-      return this.$("." + serviceProviderName).removeClass('service-loading');
-    };
-
-    LoginView.prototype.serviceProviderFailed = function(serviceProviderName) {
-      return this.$("." + serviceProviderName).removeClass('service-loading').addClass('service-unavailable').attr('disabled', true).attr('title', "Error connecting. Please check whether you areblocking " + (utils.upcase(serviceProviderName)) + ".");
-    };
-
-    return LoginView;
-
-  })(View);
-  
-}});
-
-window.require.define({"views/templates/header": function(exports, require, module) {
+window.require.define({"views/templates/option": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
-    var stack1, stack2, foundHelper, tmp1, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
+    var buffer = "", stack1, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
 
-  function program1(depth0,data) {
-    
-    var buffer = "", stack1;
-    buffer += "\n  <a class=\"header-link\" href=\"";
-    foundHelper = helpers.href;
-    stack1 = foundHelper || depth0.href;
+
+    foundHelper = helpers.label;
+    stack1 = foundHelper || depth0.label;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "href", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "\">";
-    foundHelper = helpers.title;
-    stack1 = foundHelper || depth0.title;
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "label", { hash: {} }); }
+    buffer += escapeExpression(stack1) + ": ";
+    foundHelper = helpers.active;
+    stack1 = foundHelper || depth0.active;
     if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
-    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
-    buffer += escapeExpression(stack1) + "</a>\n";
-    return buffer;}
-
-    foundHelper = helpers.items;
-    stack1 = foundHelper || depth0.items;
-    stack2 = helpers.each;
-    tmp1 = self.program(1, program1, data);
-    tmp1.hash = {};
-    tmp1.fn = tmp1;
-    tmp1.inverse = self.noop;
-    stack1 = stack2.call(depth0, stack1, tmp1);
-    if(stack1 || stack1 === 0) { return stack1; }
-    else { return ''; }});
-}});
-
-window.require.define({"views/templates/home": function(exports, require, module) {
-  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-    helpers = helpers || Handlebars.helpers;
-    var foundHelper, self=this;
-
-
-    return "<img src=\"https://a248.e.akamai.net/camo.github.com/73feb7a933dc37e0e030d82bbab9f9ad9a0e9cdb/687474703a2f2f6d656c6579616c2e666c78642e69742f687a66635f3531322e6a7067\" alt=\"Brunch\" />\n";});
-}});
-
-window.require.define({"views/templates/login": function(exports, require, module) {
-  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
-    helpers = helpers || Handlebars.helpers;
-    var buffer = "", foundHelper, self=this;
-
-
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "active", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\n";
     return buffer;});
 }});
 

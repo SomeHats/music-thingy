@@ -74,20 +74,20 @@
   globals.require.brunch = true;
 })();
 
-window.require.define({"test/models/header_test": function(exports, require, module) {
-  var Header;
+window.require.define({"test/models/item_test": function(exports, require, module) {
+  var Item;
 
-  Header = require('models/header');
+  Item = require('models/item');
 
-  describe('Header', function() {
+  describe('Item [model]', function() {
     beforeEach(function() {
-      return this.model = new Header();
+      return this.model = new Item();
     });
     afterEach(function() {
-      return this.model.dispose();
+      return this.model.destroy();
     });
-    return it('should contain 3 items', function() {
-      return expect(this.model.get('items')).to.have.length(3);
+    return it('should have 2 attributes', function() {
+      return expect(Object.keys(this.model.attributes)).to.have.length(2);
     });
   });
   
@@ -102,39 +102,13 @@ window.require.define({"test/test-helpers": function(exports, require, module) {
   
 }});
 
-window.require.define({"test/views/header_view_test": function(exports, require, module) {
-  var Header, HeaderView, HeaderViewTest, mediator,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+window.require.define({"test/views/item_test": function(exports, require, module) {
+  var ItemView;
 
-  mediator = require('mediator');
+  ItemView = require('views/item');
 
-  Header = require('models/header');
-
-  HeaderView = require('views/header_view');
-
-  HeaderViewTest = (function(_super) {
-
-    __extends(HeaderViewTest, _super);
-
-    function HeaderViewTest() {
-      return HeaderViewTest.__super__.constructor.apply(this, arguments);
-    }
-
-    HeaderViewTest.prototype.renderTimes = 0;
-
-    HeaderViewTest.prototype.render = function() {
-      HeaderViewTest.__super__.render.apply(this, arguments);
-      return this.renderTimes += 1;
-    };
-
-    return HeaderViewTest;
-
-  })(HeaderView);
-
-  describe('HeaderView', function() {
+  describe('ItemView [view]', function() {
     beforeEach(function() {
-      this.model = new Header();
       return this.view = new HeaderViewTest({
         model: this.model
       });
@@ -155,25 +129,33 @@ window.require.define({"test/views/header_view_test": function(exports, require,
   
 }});
 
-window.require.define({"test/views/home_page_view_test": function(exports, require, module) {
-  var HomePageView;
+window.require.define({"test/views/list_test": function(exports, require, module) {
+  var ListView;
 
-  HomePageView = require('views/home_page_view');
+  ListView = require('views/list');
 
-  describe('HomePageView', function() {
+  describe('ListView [view]', function() {
     beforeEach(function() {
-      return this.view = new HomePageView;
+      return this.view = new ListView;
     });
     afterEach(function() {
-      return this.view.dispose();
+      return this.view.remove();
     });
-    return it('should auto-render', function() {
-      return expect(this.view.$el.find('img')).to.have.length(1);
+    it('should auto-render', function() {
+      expect(this.view.$el.find('button')).to.have.length(1);
+      return expect(this.view.$el.find('ul')).to.have.length(1);
+    });
+    return it('should addItem on click', function() {
+      var countBefore;
+      countBefore = this.view.counter;
+      this.view.$el.find('button').trigger('click').trigger('click');
+      expect(this.view.counter).to.equal(countBefore + 2);
+      return expect(this.view.$el.find('li')).to.have.length(2);
     });
   });
   
 }});
 
-window.require('test/models/header_test');
-window.require('test/views/header_view_test');
-window.require('test/views/home_page_view_test');
+window.require('test/models/item_test');
+window.require('test/views/item_test');
+window.require('test/views/list_test');
