@@ -75,7 +75,7 @@
 })();
 
 window.require.define({"application": function(exports, require, module) {
-  var Application, Loader, LoaderView, OptionsView,
+  var Application, Loader, LoaderView, OptionsView, Search,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -84,6 +84,8 @@ window.require.define({"application": function(exports, require, module) {
   LoaderView = require('views/loader');
 
   Loader = require('models/loader');
+
+  Search = require('views/search');
 
   module.exports = Application = (function(_super) {
 
@@ -110,10 +112,14 @@ window.require.define({"application": function(exports, require, module) {
       options = new OptionsView({
         el: $('.options')
       });
-      return this.speed = options.addOption({
+      this.speed = options.addOption({
         label: 'Speed',
         options: [[4, 'slow'], [2, 'normal'], [1, 'fast']],
         active: 1
+      });
+      $('#search').html('hello');
+      return this.search = new Search({
+        el: $('#search')
       });
     };
 
@@ -143,6 +149,12 @@ window.require.define({"collections/options": function(exports, require, module)
     return Option;
 
   })(Backbone.Collection);
+  
+}});
+
+window.require.define({"collections/results": function(exports, require, module) {
+  
+
   
 }});
 
@@ -249,6 +261,12 @@ window.require.define({"models/option": function(exports, require, module) {
     return Option;
 
   })(Backbone.Model);
+  
+}});
+
+window.require.define({"models/result": function(exports, require, module) {
+  
+
   
 }});
 
@@ -373,7 +391,7 @@ window.require.define({"views/option": function(exports, require, module) {
 }});
 
 window.require.define({"views/options": function(exports, require, module) {
-  var OpionsView, Option, OptionView, Options,
+  var Option, OptionView, Options, OptionsView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -383,35 +401,35 @@ window.require.define({"views/options": function(exports, require, module) {
 
   OptionView = require('views/option');
 
-  module.exports = OpionsView = (function(_super) {
+  module.exports = OptionsView = (function(_super) {
 
-    __extends(OpionsView, _super);
+    __extends(OptionsView, _super);
 
-    function OpionsView() {
-      return OpionsView.__super__.constructor.apply(this, arguments);
+    function OptionsView() {
+      return OptionsView.__super__.constructor.apply(this, arguments);
     }
 
-    OpionsView.prototype.tagName = 'div';
+    OptionsView.prototype.tagName = 'div';
 
-    OpionsView.prototype.className = 'options';
+    OptionsView.prototype.className = 'options';
 
-    OpionsView.prototype.initialize = function() {
+    OptionsView.prototype.initialize = function() {
       _.bindAll(this);
       this.collection = new Options;
       this.collection.on('add', this.appendOption);
       return this.render();
     };
 
-    OpionsView.prototype.render = function() {};
+    OptionsView.prototype.render = function() {};
 
-    OpionsView.prototype.addOption = function(options) {
+    OptionsView.prototype.addOption = function(options) {
       var option;
       option = new Option(options);
       this.collection.add(option);
       return option;
     };
 
-    OpionsView.prototype.appendOption = function(option) {
+    OptionsView.prototype.appendOption = function(option) {
       var option_view;
       option_view = new OptionView({
         model: option
@@ -419,7 +437,54 @@ window.require.define({"views/options": function(exports, require, module) {
       return this.$el.append(option_view.render().el);
     };
 
-    return OpionsView;
+    return OptionsView;
+
+  })(Backbone.View);
+  
+}});
+
+window.require.define({"views/result": function(exports, require, module) {
+  
+
+  
+}});
+
+window.require.define({"views/search": function(exports, require, module) {
+  var Result, ResultView, Results, Search, template,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  Results = require('collections/results');
+
+  Result = require('models/result');
+
+  ResultView = require('views/result');
+
+  template = require('views/templates/search');
+
+  module.exports = Search = (function(_super) {
+
+    __extends(Search, _super);
+
+    function Search() {
+      return Search.__super__.constructor.apply(this, arguments);
+    }
+
+    Search.prototype.tagName = 'div';
+
+    Search.prototype.id = 'search';
+
+    Search.prototype.initialize = function() {
+      _.bindAll(this);
+      this.template = template;
+      return this.render();
+    };
+
+    Search.prototype.render = function() {
+      return this.$el.html(this.template);
+    };
+
+    return Search;
 
   })(Backbone.View);
   
@@ -451,5 +516,23 @@ window.require.define({"views/templates/option": function(exports, require, modu
     else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "active", { hash: {} }); }
     buffer += escapeExpression(stack1) + "\n";
     return buffer;});
+}});
+
+window.require.define({"views/templates/result": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var buffer = "", foundHelper, self=this;
+
+
+    return buffer;});
+}});
+
+window.require.define({"views/templates/search": function(exports, require, module) {
+  module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+    helpers = helpers || Handlebars.helpers;
+    var foundHelper, self=this;
+
+
+    return "<h1>MusicThingy</h1>\n<span>Play some</span><input autocomplete=\"off\"><a class=\"cancel\">&times;</a>\n<p>Who's your favourite band or musician?</p>\n<a class=\"go\">Go &rarr;</a>\n<ul id=\"results\"></ul>\n";});
 }});
 

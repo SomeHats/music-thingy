@@ -2,7 +2,7 @@ Options = require 'collections/options'
 Option = require 'models/option'
 OptionView = require 'views/option'
 
-module.exports = class OpionsView extends Backbone.View
+module.exports = class OptionsView extends Backbone.View
   tagName: 'div'
   className: 'options'
 

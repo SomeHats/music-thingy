@@ -1,6 +1,7 @@
 OptionsView = require 'views/options'
 LoaderView = require 'views/loader'
 Loader = require 'models/loader'
+Search = require 'views/search'
 
 module.exports = class Application extends Backbone.View
   tagName: 'div'
@@ -20,3 +21,7 @@ module.exports = class Application extends Backbone.View
       label: 'Speed'
       options: [[4, 'slow'], [2, 'normal'], [1, 'fast']]
       active: 1
+
+    $('#search').html 'hello'
+
+    @search = new Search el: $('#search')

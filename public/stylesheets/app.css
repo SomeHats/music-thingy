@@ -210,8 +210,7 @@ td { vertical-align: top; }
   }
 }
 html,
-body,
-#container {
+body {
   height: 100%;
   padding: 0;
   margin: 0;
@@ -221,6 +220,11 @@ body,
 body {
   font-family: 'Lato', sans-serif;
   font-weight: 300;
+  background-image: url("../images/bg.jpg");
+  -webkit-background-size: cover;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 .options {
   display: block;
