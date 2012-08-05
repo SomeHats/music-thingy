@@ -166,6 +166,7 @@ window.require.define({"initialize": function(exports, require, module) {
   $(document).on('ready', function() {
     var App;
     App = new Application;
+    $('#cont').attr('id', 'container');
     $('#container').append(App.el);
     return window.App = App;
   });
@@ -481,8 +482,32 @@ window.require.define({"views/search": function(exports, require, module) {
     };
 
     Search.prototype.render = function() {
-      return this.$el.html(this.template);
+      this.$el.html(this.template);
+      this.$input = this.$el.find('input');
+      this.input = this.$input[0];
+      this.$input.attr('placeholder', this.randomPlaceholder());
+      this.input.focus();
+      return this.$input.on('change keyup focus blur', this.inputChange);
     };
+
+    Search.prototype.inputChange = function(e) {
+      var str;
+      str = this.input.value;
+      if (str.trim) {
+        str = str.trim();
+      }
+      if (str.length > 0) {
+        return this.$el.addClass('valid');
+      } else {
+        return this.$el.removeClass('valid');
+      }
+    };
+
+    Search.prototype.randomPlaceholder = function() {
+      return this.placeholders[Math.floor(Math.random() * this.placeholders.length)];
+    };
+
+    Search.prototype.placeholders = ['The Antlers', 'Black Kids', 'Blood Red Shoes', 'Bright Eyes', 'Darwin Deez', 'Delphic', 'Dutch Uncles', 'Empire of the Sun', 'Everything Everything', 'Fenech Soler', 'Foals', 'Friendly Fires', 'J\u00F3nsi', 'Justice', 'La Roux', 'Miike Snow', 'The Naked and Famous', 'Passion Pit', 'Phoenix', 'Sigur R\u00F3s', 'Surfer Blood', 'Tokyo Police Club', 'Two Door Cinema Club'];
 
     return Search;
 
@@ -533,6 +558,6 @@ window.require.define({"views/templates/search": function(exports, require, modu
     var foundHelper, self=this;
 
 
-    return "<h1>MusicThingy</h1>\n<span>Play some</span><input autocomplete=\"off\"><a class=\"cancel\">&times;</a>\n<p>Who's your favourite band or musician?</p>\n<a class=\"go\">Go &rarr;</a>\n<ul id=\"results\"></ul>\n";});
+    return "<h1>MusicThingy</h1>\n<span>Play some</span> <input autocomplete=\"off\"><a class=\"cancel\">&times;</a>\n<p>Who's your favourite band or musician?</p>\n<a class=\"go\">Go &gt;</a>\n<ul id=\"results\"></ul>\n";});
 }});
 
