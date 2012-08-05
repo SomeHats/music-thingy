@@ -50,11 +50,12 @@ module.exports = class Search extends Backbone.View
 
   cancel: ->
     @input.value = ''
+    @$el.removeClass 'results'
     @inputChange()
 
   go: ->
     if @valid
-      alert 'Go!'
+      @$el.addClass 'results'
 
   randomPlaceholder: ->
     @placeholders[Math.floor Math.random() * @placeholders.length]

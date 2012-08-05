@@ -31,13 +31,29 @@
     font-weight 100
     line-height 100px
     text-shadow 0 3px 10px black
+    transition all 0.5s ease
     animation DropInFade 0.5s ease
 
-  span
+    .results&
+      margin-top 50px
+      margin-bottom 10px
+
+  > span
     display inline-block
     overflow hidden
     vertical-align top
+    transition all 0.5s ease
+    width 215px
+    opacity 1
     @extend .slideUpFade
+
+    > span
+      display inline-block
+      width 215px
+
+    .results&
+      width 0
+      opacity 0
 
   input
     overflow hidden
@@ -54,6 +70,9 @@
     outline none
     width 520px
     @extend .slideUpFade
+
+    .results&
+      width 740px
 
     &:-moz-placeholder
       color rgba(255, 255, 255, 0.7)
@@ -100,6 +119,11 @@
   .go
     margin-top 15px
     display block
+    position absolute
+    width 100%
+
+    .results&
+      opacity 0
 
   .cancel
     position relative

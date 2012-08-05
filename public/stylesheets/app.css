@@ -357,7 +357,7 @@ body {
   box-shadow: 0 0 5px #fff, 0 0 5px rgba(255,255,255,0.8);
 }
 .slideUpFade,
-#search span,
+#search > span,
 #search input,
 #search p {
   -webkit-animation: SlideUpFade 0.5s ease;
@@ -378,16 +378,44 @@ body {
   font-weight: 100;
   line-height: 100px;
   text-shadow: 0 3px 10px #000;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  transition: all 0.5s ease;
   -webkit-animation: DropInFade 0.5s ease;
   -moz-animation: DropInFade 0.5s ease;
   -o-animation: DropInFade 0.5s ease;
   -ms-animation: DropInFade 0.5s ease;
   animation: DropInFade 0.5s ease;
 }
-#search span {
+.results#search h1 {
+  margin-top: 50px;
+  margin-bottom: 10px;
+}
+#search > span {
   display: inline-block;
   overflow: hidden;
   vertical-align: top;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  width: 215px;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+}
+#search > span > span {
+  display: inline-block;
+  width: 215px;
+}
+.results#search > span {
+  width: 0;
+  opacity: 0;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  filter: alpha(opacity=0);
 }
 #search input {
   overflow: hidden;
@@ -407,6 +435,9 @@ body {
   border-bottom: 3px dotted #fff;
   outline: none;
   width: 520px;
+}
+.results#search input {
+  width: 740px;
 }
 #search input:-moz-placeholder {
   color: rgba(255,255,255,0.7);
@@ -468,6 +499,13 @@ body {
 #search .go {
   margin-top: 15px;
   display: block;
+  position: absolute;
+  width: 100%;
+}
+.results#search .go {
+  opacity: 0;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
+  filter: alpha(opacity=0);
 }
 #search .cancel {
   position: relative;

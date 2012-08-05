@@ -520,12 +520,13 @@ window.require.define({"views/search": function(exports, require, module) {
 
     Search.prototype.cancel = function() {
       this.input.value = '';
+      this.$el.removeClass('results');
       return this.inputChange();
     };
 
     Search.prototype.go = function() {
       if (this.valid) {
-        return alert('Go!');
+        return this.$el.addClass('results');
       }
     };
 
@@ -584,6 +585,6 @@ window.require.define({"views/templates/search": function(exports, require, modu
     var foundHelper, self=this;
 
 
-    return "<h1>MusicThingy</h1>\n<span>Play some</span> <input autocomplete=\"off\"><a class=\"cancel\">&times;</a>\n<p>Who's your favourite band or musician?</p>\n<a class=\"go\">Go &gt;</a>\n<ul id=\"results\"></ul>\n";});
+    return "<h1>MusicThingy</h1>\n<span><span>Play some</span></span> <input autocomplete=\"off\"><a class=\"cancel\">&times;</a>\n<p>Who's your favourite band or musician?</p>\n<a class=\"go\">Go &gt;</a>\n<ul id=\"results\"></ul>\n";});
 }});
 
