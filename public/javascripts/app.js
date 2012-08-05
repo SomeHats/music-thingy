@@ -100,11 +100,13 @@ window.require.define({"app": function(exports, require, module) {
 }});
 
 window.require.define({"application": function(exports, require, module) {
-  var App, Application, Loader, LoaderView, OptionsView, Search, SearchView,
+  var App, Application, Loader, LoaderView, OptionsView, Router, Search, SearchView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   App = require('app');
+
+  Router = require('routes');
 
   OptionsView = require('views/options');
 
@@ -151,8 +153,11 @@ window.require.define({"application": function(exports, require, module) {
         el: $('#search'),
         model: App.search
       });
-      App.search.set('term', 'Coldplay');
-      return App.search.go();
+      App.router = new Router;
+      return Backbone.history.start({
+        pushState: true,
+        root: '/'
+      });
     };
 
     return Application;
@@ -331,9 +336,11 @@ window.require.define({"models/result": function(exports, require, module) {
 }});
 
 window.require.define({"models/search": function(exports, require, module) {
-  var Search,
+  var App, Search,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  App = require('app');
 
   module.exports = Search = (function(_super) {
 
@@ -370,14 +377,16 @@ window.require.define({"models/search": function(exports, require, module) {
         silent: true
       });
       this.trigger('change:term');
-      return this.trigger('change:results');
+      this.trigger('change:results');
+      return App.router.navigate('');
     };
 
     Search.prototype.go = function() {
       if (this.isValid()) {
-        return this.set({
+        this.set({
           results: true
         });
+        return App.router.navigate(encodeURIComponent(this.get('term')));
       }
     };
 
@@ -388,8 +397,39 @@ window.require.define({"models/search": function(exports, require, module) {
 }});
 
 window.require.define({"routes": function(exports, require, module) {
-  
+  var App, Router,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  App = require('app');
+
+  module.exports = Router = (function(_super) {
+
+    __extends(Router, _super);
+
+    function Router() {
+      return Router.__super__.constructor.apply(this, arguments);
+    }
+
+    Router.prototype.routes = {
+      "": "reset",
+      ":search": "search"
+    };
+
+    Router.prototype.search = function(term) {
+      App.search.set('term', decodeURIComponent(term));
+      return App.search.go();
+    };
+
+    Router.prototype.reset = function() {
+      if (App.search.get('results')) {
+        return App.search.cancel();
+      }
+    };
+
+    return Router;
+
+  })(Backbone.Router);
   
 }});
 

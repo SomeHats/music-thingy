@@ -386,6 +386,11 @@ body {
   -ms-filter: none;
   filter: none;
   cursor: pointer;
+  -webkit-animation: FadeIn 0.5s ease;
+  -moz-animation: FadeIn 0.5s ease;
+  -o-animation: FadeIn 0.5s ease;
+  -ms-animation: FadeIn 0.5s ease;
+  animation: FadeIn 0.5s ease;
 }
 #results div {
   display: table-cell;

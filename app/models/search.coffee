@@ -1,3 +1,5 @@
+App = require 'app'
+
 module.exports = class Search extends Backbone.Model
   defaults:
     term: ''
@@ -21,7 +23,11 @@ module.exports = class Search extends Backbone.Model
     @trigger 'change:term'
     @trigger 'change:results'
 
+    App.router.navigate ''
+
   go: ->
     if @isValid()
       @set
         results: true
+
+      App.router.navigate encodeURIComponent @get 'term'

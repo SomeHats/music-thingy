@@ -1,4 +1,5 @@
 App = require 'app'
+Router = require 'routes'
 OptionsView = require 'views/options'
 LoaderView = require 'views/loader'
 Loader = require 'models/loader'
@@ -28,6 +29,7 @@ module.exports = class Application extends Backbone.View
       el: $('#search')
       model: App.search
 
-    # Automate:
-    App.search.set 'term', 'Coldplay'
-    App.search.go()
+    App.router = new Router
+    Backbone.history.start
+      pushState: true
+      root: '/'
