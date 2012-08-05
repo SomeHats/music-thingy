@@ -1,7 +1,6 @@
 Application = require 'application'
 
 $(document).on 'ready', ->
-  App = new Application
+  app = new Application
   $('#cont').attr 'id', 'container'
-  $('#container').append App.el
-  window.App = App
+  $('#container').append app.el

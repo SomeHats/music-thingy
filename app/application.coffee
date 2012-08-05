@@ -1,8 +1,9 @@
+App = require 'app'
 OptionsView = require 'views/options'
 LoaderView = require 'views/loader'
 Loader = require 'models/loader'
-Search = require 'views/search'
-
+Search= require 'models/search'
+SearchView = require 'views/search'
 module.exports = class Application extends Backbone.View
   tagName: 'div'
 
@@ -10,18 +11,19 @@ module.exports = class Application extends Backbone.View
     Backbone.sync = (method, model, success, error) ->
       success()
 
-    @loader = new Loader show:false
+    App.loader = new Loader show:false
     loader_view = new LoaderView
       el: $('#loader')
-      model: @loader
+      model: App.loader
 
     options = new OptionsView el: $('.options')
 
-    @speed = options.addOption
+    App.speed = options.addOption
       label: 'Speed'
       options: [[4, 'slow'], [2, 'normal'], [1, 'fast']]
       active: 1
 
-    $('#search').html 'hello'
-
-    @search = new Search el: $('#search')
+    App.search = new Search
+    search_view = new SearchView
+      el: $('#search')
+      model: App.search

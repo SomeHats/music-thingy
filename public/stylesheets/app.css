@@ -81,6 +81,7 @@ td { vertical-align: top; }
   -o-transition: opacity 0.2s ease;
   -ms-transition: opacity 0.2s ease;
   transition: opacity 0.2s ease;
+  pointer-events: none;
 }
 #loader.off {
   opacity: 0;
@@ -95,19 +96,26 @@ td { vertical-align: top; }
   -ms-animation: fadeInOut 0.5s ease infinite alternate;
   animation: fadeInOut 0.5s ease infinite alternate;
 }
+#loader span:nth-child(1) {
+  -webkit-animation-delay: 0.5s;
+  -moz-animation-delay: 0.5s;
+  -o-animation-delay: 0.5s;
+  -ms-animation-delay: 0.5s;
+  animation-delay: 0.5s;
+}
 #loader span:nth-child(2) {
-  -webkit-animation-delay: 0.1s;
-  -moz-animation-delay: 0.1s;
-  -o-animation-delay: 0.1s;
-  -ms-animation-delay: 0.1s;
-  animation-delay: 0.1s;
+  -webkit-animation-delay: 0.6s;
+  -moz-animation-delay: 0.6s;
+  -o-animation-delay: 0.6s;
+  -ms-animation-delay: 0.6s;
+  animation-delay: 0.6s;
 }
 #loader span:nth-child(3) {
-  -webkit-animation-delay: 0.2s;
-  -moz-animation-delay: 0.2s;
-  -o-animation-delay: 0.2s;
-  -ms-animation-delay: 0.2s;
-  animation-delay: 0.2s;
+  -webkit-animation-delay: 0.7s;
+  -moz-animation-delay: 0.7s;
+  -o-animation-delay: 0.7s;
+  -ms-animation-delay: 0.7s;
+  animation-delay: 0.7s;
 }
 #loader > div {
   width: 320px;
@@ -506,6 +514,7 @@ body {
   opacity: 0;
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   filter: alpha(opacity=0);
+  pointer-events: none;
 }
 #search .cancel {
   position: relative;

@@ -74,10 +74,18 @@
   globals.require.brunch = true;
 })();
 
+window.require.define({"app": function(exports, require, module) {
+  
+  module.exports = new Backbone.Model;
+  
+}});
+
 window.require.define({"application": function(exports, require, module) {
-  var Application, Loader, LoaderView, OptionsView, Search,
+  var App, Application, Loader, LoaderView, OptionsView, Search, SearchView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  App = require('app');
 
   OptionsView = require('views/options');
 
@@ -85,7 +93,9 @@ window.require.define({"application": function(exports, require, module) {
 
   Loader = require('models/loader');
 
-  Search = require('views/search');
+  Search = require('models/search');
+
+  SearchView = require('views/search');
 
   module.exports = Application = (function(_super) {
 
@@ -98,28 +108,29 @@ window.require.define({"application": function(exports, require, module) {
     Application.prototype.tagName = 'div';
 
     Application.prototype.initialize = function() {
-      var loader_view, options;
+      var loader_view, options, search_view;
       Backbone.sync = function(method, model, success, error) {
         return success();
       };
-      this.loader = new Loader({
+      App.loader = new Loader({
         show: false
       });
       loader_view = new LoaderView({
         el: $('#loader'),
-        model: this.loader
+        model: App.loader
       });
       options = new OptionsView({
         el: $('.options')
       });
-      this.speed = options.addOption({
+      App.speed = options.addOption({
         label: 'Speed',
         options: [[4, 'slow'], [2, 'normal'], [1, 'fast']],
         active: 1
       });
-      $('#search').html('hello');
-      return this.search = new Search({
-        el: $('#search')
+      App.search = new Search;
+      return search_view = new SearchView({
+        el: $('#search'),
+        model: App.search
       });
     };
 
@@ -164,11 +175,10 @@ window.require.define({"initialize": function(exports, require, module) {
   Application = require('application');
 
   $(document).on('ready', function() {
-    var App;
-    App = new Application;
+    var app;
+    app = new Application;
     $('#cont').attr('id', 'container');
-    $('#container').append(App.el);
-    return window.App = App;
+    return $('#container').append(app.el);
   });
   
 }});
@@ -268,6 +278,63 @@ window.require.define({"models/option": function(exports, require, module) {
 window.require.define({"models/result": function(exports, require, module) {
   
 
+  
+}});
+
+window.require.define({"models/search": function(exports, require, module) {
+  var Search,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  module.exports = Search = (function(_super) {
+
+    __extends(Search, _super);
+
+    function Search() {
+      return Search.__super__.constructor.apply(this, arguments);
+    }
+
+    Search.prototype.defaults = {
+      term: '',
+      results: false
+    };
+
+    Search.prototype.validate = function(attrs) {
+      var str;
+      if (attrs.term.trim) {
+        str = attrs.term.trim();
+      } else {
+        str = attrs.term;
+      }
+      if (str.length > 0) {
+
+      } else {
+        return 'error';
+      }
+    };
+
+    Search.prototype.cancel = function() {
+      this.set({
+        results: false,
+        term: ''
+      }, {
+        silent: true
+      });
+      this.trigger('change:term');
+      return this.trigger('change:results');
+    };
+
+    Search.prototype.go = function() {
+      if (this.isValid()) {
+        return this.set({
+          results: true
+        });
+      }
+    };
+
+    return Search;
+
+  })(Backbone.Model);
   
 }});
 
@@ -451,9 +518,11 @@ window.require.define({"views/result": function(exports, require, module) {
 }});
 
 window.require.define({"views/search": function(exports, require, module) {
-  var Result, ResultView, Results, Search, template,
+  var App, Result, ResultView, Results, SearchView, template,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  App = require('app');
 
   Results = require('collections/results');
 
@@ -463,80 +532,104 @@ window.require.define({"views/search": function(exports, require, module) {
 
   template = require('views/templates/search');
 
-  module.exports = Search = (function(_super) {
+  module.exports = SearchView = (function(_super) {
 
-    __extends(Search, _super);
+    __extends(SearchView, _super);
 
-    function Search() {
-      return Search.__super__.constructor.apply(this, arguments);
+    function SearchView() {
+      return SearchView.__super__.constructor.apply(this, arguments);
     }
 
-    Search.prototype.tagName = 'div';
+    SearchView.prototype.tagName = 'div';
 
-    Search.prototype.id = 'search';
+    SearchView.prototype.id = 'search';
 
-    Search.prototype.initialize = function() {
+    SearchView.prototype.initialize = function() {
       _.bindAll(this);
       this.template = template;
       return this.render();
     };
 
-    Search.prototype.render = function() {
+    SearchView.prototype.render = function() {
       this.$el.html(this.template);
       this.$input = this.$el.find('input');
       this.input = this.$input[0];
       this.$input.attr('placeholder', this.randomPlaceholder());
       this.input.focus();
-      this.inputChange();
+      this.termChange();
+      console.log(this);
+      this.model.on('change:results', this.renderResults);
+      this.model.on('change:term', this.termChange);
       return this;
     };
 
-    Search.prototype.events = {
-      'click .cancel': 'cancel',
-      'change input': 'inputChange',
-      'keyup input': 'inputChange',
-      'click .go': 'go'
+    SearchView.prototype.events = {
+      'change input': 'changeInput',
+      'keyup input': 'changeInput',
+      'click .cancel': 'clickCancel',
+      'click .go': 'clickGo'
     };
 
-    Search.prototype.valid = false;
-
-    Search.prototype.inputChange = function(e) {
-      var str;
-      str = this.input.value;
-      if (str.trim) {
-        str = str.trim();
+    SearchView.prototype.changeInput = function(e) {
+      this.model.set({
+        term: this.input.value
+      }, {
+        silent: true
+      });
+      this.model.trigger('change:term');
+      if (this.model.isValid() && e && e.which && e.which === 13) {
+        return this.model.go();
       }
-      if (str.length > 0) {
-        this.$el.addClass('valid');
-        this.valid = true;
+    };
+
+    SearchView.prototype.lockInput = function(lock) {
+      if (lock) {
+        this.$input.attr('readonly', 'readonly');
+        this.input.blur();
+        return this.$input.on('focus', function() {
+          return this.input.focus();
+        });
       } else {
-        this.$el.removeClass('valid');
-        this.valid = false;
-      }
-      if (e && e.which && e.which === 13) {
-        return this.go();
+        this.$input.removeAttr('readonly');
+        return this.$input.off('focus');
       }
     };
 
-    Search.prototype.cancel = function() {
-      this.input.value = '';
-      this.$el.removeClass('results');
-      return this.inputChange();
+    SearchView.prototype.clickCancel = function(e) {
+      return this.model.cancel();
     };
 
-    Search.prototype.go = function() {
-      if (this.valid) {
-        return this.$el.addClass('results');
+    SearchView.prototype.clickGo = function(e) {
+      return this.model.go();
+    };
+
+    SearchView.prototype.renderResults = function() {
+      if (this.model.get('results')) {
+        this.$el.addClass('results');
+        this.lockInput(true);
+        return App.loader.show(false);
+      } else {
+        this.$el.removeClass('results');
+        return this.lockInput(false);
       }
     };
 
-    Search.prototype.randomPlaceholder = function() {
+    SearchView.prototype.termChange = function() {
+      this.input.value = this.model.get('term');
+      if (this.model.isValid()) {
+        return this.$el.addClass('valid');
+      } else {
+        return this.$el.removeClass('valid');
+      }
+    };
+
+    SearchView.prototype.randomPlaceholder = function() {
       return this.placeholders[Math.floor(Math.random() * this.placeholders.length)];
     };
 
-    Search.prototype.placeholders = ['The Antlers', 'Black Kids', 'Blood Red Shoes', 'Bright Eyes', 'Darwin Deez', 'Delphic', 'Dutch Uncles', 'Empire of the Sun', 'Everything Everything', 'Fenech Soler', 'Foals', 'Friendly Fires', 'J\u00F3nsi', 'Justice', 'La Roux', 'Miike Snow', 'The Naked and Famous', 'Passion Pit', 'Phoenix', 'Sigur R\u00F3s', 'Surfer Blood', 'Tokyo Police Club', 'Two Door Cinema Club'];
+    SearchView.prototype.placeholders = ['The Antlers', 'Black Kids', 'Blood Red Shoes', 'Bright Eyes', 'Darwin Deez', 'Delphic', 'Dutch Uncles', 'Empire of the Sun', 'Everything Everything', 'Fenech Soler', 'Foals', 'Friendly Fires', 'J\u00F3nsi', 'Justice', 'La Roux', 'Miike Snow', 'The Naked and Famous', 'Passion Pit', 'Phoenix', 'Sigur R\u00F3s', 'Surfer Blood', 'Tokyo Police Club', 'Two Door Cinema Club'];
 
-    return Search;
+    return SearchView;
 
   })(Backbone.View);
   

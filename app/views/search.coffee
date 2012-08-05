@@ -1,9 +1,10 @@
+App = require 'app'
 Results = require 'collections/results'
 Result = require 'models/result'
 ResultView = require 'views/result'
 template = require 'views/templates/search'
 
-module.exports = class Search extends Backbone.View
+module.exports = class SearchView extends Backbone.View
   tagName: 'div'
   id: 'search'
 
@@ -23,39 +24,60 @@ module.exports = class Search extends Backbone.View
     @$input.attr 'placeholder', @randomPlaceholder()
     @input.focus()
 
-    @inputChange()
+    @termChange()
+
+    console.log @
+    
+    @model.on 'change:results', @renderResults
+    @model.on 'change:term', @termChange
 
     @
 
   events:
-    'click .cancel': 'cancel'
-    'change input': 'inputChange'
-    'keyup input': 'inputChange'
-    'click .go': 'go'
+    'change input': 'changeInput'
+    'keyup input': 'changeInput'
+    'click .cancel': 'clickCancel'
+    'click .go': 'clickGo'
 
-  valid: false
+  changeInput: (e) ->
+    @model.set
+      term: @input.value,
+        silent: true
+    @model.trigger 'change:term'
+    if @model.isValid() && e && e.which && e.which == 13
+      @model.go()
 
-  inputChange: (e) ->
-    str = @input.value
-    str = str.trim() if str.trim
-    if str.length > 0
+   lockInput: (lock) ->
+    if lock
+      @$input.attr 'readonly', 'readonly'
+      @input.blur()
+      @$input.on 'focus', -> @input.focus()
+    else
+      @$input.removeAttr 'readonly'
+      @$input.off 'focus'
+
+
+  clickCancel: (e) ->
+    @model.cancel()
+
+  clickGo: (e) ->
+    @model.go()
+
+  renderResults: ->
+    if @model.get 'results'
+      @$el.addClass 'results'
+      @lockInput true
+      App.loader.show(false)
+    else
+      @$el.removeClass 'results'
+      @lockInput false
+
+  termChange: ->
+    @input.value = @model.get 'term'
+    if @model.isValid()
       @$el.addClass 'valid'
-      @valid = true
     else
       @$el.removeClass 'valid'
-      @valid = false
-
-    if e && e.which && e.which == 13
-      @go()
-
-  cancel: ->
-    @input.value = ''
-    @$el.removeClass 'results'
-    @inputChange()
-
-  go: ->
-    if @valid
-      @$el.addClass 'results'
 
   randomPlaceholder: ->
     @placeholders[Math.floor Math.random() * @placeholders.length]
