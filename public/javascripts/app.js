@@ -75,8 +75,27 @@
 })();
 
 window.require.define({"app": function(exports, require, module) {
-  
-  module.exports = new Backbone.Model;
+  var App,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  App = (function(_super) {
+
+    __extends(App, _super);
+
+    function App() {
+      return App.__super__.constructor.apply(this, arguments);
+    }
+
+    App.prototype.error = function(error) {
+      return alert("Error: " + error);
+    };
+
+    return App;
+
+  })(Backbone.View);
+
+  module.exports = new App;
   
 }});
 
@@ -128,10 +147,12 @@ window.require.define({"application": function(exports, require, module) {
         active: 1
       });
       App.search = new Search;
-      return search_view = new SearchView({
+      search_view = new SearchView({
         el: $('#search'),
         model: App.search
       });
+      App.search.set('term', 'Coldplay');
+      return App.search.go();
     };
 
     return Application;
@@ -276,8 +297,36 @@ window.require.define({"models/option": function(exports, require, module) {
 }});
 
 window.require.define({"models/result": function(exports, require, module) {
-  
+  var Result,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  module.exports = Result = (function(_super) {
+
+    __extends(Result, _super);
+
+    function Result() {
+      return Result.__super__.constructor.apply(this, arguments);
+    }
+
+    Result.prototype.tagName = 'li';
+
+    Result.prototype.initialize = function() {
+      var raw;
+      _.bindAll(this);
+      raw = this.get('raw');
+      this.set({
+        title: raw.title.$t,
+        author: raw.author[0].name.$t,
+        id: raw.id.$t.split(':')[3],
+        thumb: raw.thumb
+      });
+      return this.unset('raw');
+    };
+
+    return Result;
+
+  })(Backbone.Model);
   
 }});
 
@@ -335,6 +384,12 @@ window.require.define({"models/search": function(exports, require, module) {
     return Search;
 
   })(Backbone.Model);
+  
+}});
+
+window.require.define({"routes": function(exports, require, module) {
+  
+
   
 }});
 
@@ -512,23 +567,196 @@ window.require.define({"views/options": function(exports, require, module) {
 }});
 
 window.require.define({"views/result": function(exports, require, module) {
-  
+  var ResultView, template,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  template = require('views/templates/result');
+
+  module.exports = ResultView = (function(_super) {
+
+    __extends(ResultView, _super);
+
+    function ResultView() {
+      return ResultView.__super__.constructor.apply(this, arguments);
+    }
+
+    ResultView.prototype.tagName = 'li';
+
+    ResultView.prototype.initialize = function() {
+      _.bindAll(this);
+      this.template = template;
+      return this.render();
+    };
+
+    ResultView.prototype.render = function() {
+      return this.$el.html(this.template(this.model.toJSON()));
+    };
+
+    return ResultView;
+
+  })(Backbone.View);
   
 }});
 
-window.require.define({"views/search": function(exports, require, module) {
-  var App, Result, ResultView, Results, SearchView, template,
+window.require.define({"views/results": function(exports, require, module) {
+  var App, Result, ResultView, Results, ResultsView,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   App = require('app');
 
-  Results = require('collections/results');
+  Results = Backbone.Collection;
 
   Result = require('models/result');
 
   ResultView = require('views/result');
+
+  module.exports = ResultsView = (function(_super) {
+
+    __extends(ResultsView, _super);
+
+    function ResultsView() {
+      return ResultsView.__super__.constructor.apply(this, arguments);
+    }
+
+    ResultsView.prototype.tagName = 'ul';
+
+    ResultsView.prototype.id = 'results';
+
+    ResultsView.prototype.initialize = function() {
+      _.bindAll(this);
+      this.term = this.options.term;
+      this.ready = true;
+      this.searchYoutube();
+      return this.collection = new Results({
+        model: Result
+      });
+    };
+
+    ResultsView.prototype.destroy = function() {
+      if (this.req.done !== true) {
+        this.req.req.abort();
+      }
+      return this.remove();
+    };
+
+    ResultsView.prototype.perPage = 10;
+
+    ResultsView.prototype.page = 0;
+
+    ResultsView.prototype.req = {
+      done: false
+    };
+
+    ResultsView.prototype.toLoad = 0;
+
+    ResultsView.prototype.loaded = 0;
+
+    ResultsView.prototype.ready = false;
+
+    ResultsView.prototype.searchYoutube = function() {
+      if (this.ready) {
+        App.loader.progress(0);
+        App.loader.show(false);
+        this.ready = false;
+        return this.req.req = jQuery.ajax({
+          url: 'https://gdata.youtube.com/feeds/api/videos',
+          dataType: 'jsonp',
+          context: this,
+          data: {
+            alt: 'json-in-script',
+            v: 2,
+            'start-index': 1 + (this.page * this.perPage),
+            'max-results': this.perPage,
+            q: this.term,
+            category: 'Music'
+          },
+          success: this.youtubeResults,
+          error: this.youtubeError
+        });
+      }
+    };
+
+    ResultsView.prototype.youtubeError = function() {
+      App.error('could not get Youtube results.');
+      return this.trigger('fail');
+    };
+
+    ResultsView.prototype.youtubeResults = function(data) {
+      var $thumb, thumb, video, videos, _i, _len, _results;
+      if (data && data.feed) {
+        if (data.feed.entry) {
+          videos = data.feed.entry;
+          App.loader.show(true);
+          _results = [];
+          for (_i = 0, _len = videos.length; _i < _len; _i++) {
+            video = videos[_i];
+            _results.push((function() {
+              var _j, _len1, _ref, _results1;
+              _ref = video.media$group.media$thumbnail;
+              _results1 = [];
+              for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+                thumb = _ref[_j];
+                if (!(thumb.yt$name === 'mqdefault')) {
+                  continue;
+                }
+                $thumb = $('<img>');
+                $thumb.attr({
+                  alt: "Thumbnail: " + video.title.$t,
+                  width: thumb.width,
+                  height: thumb.height,
+                  src: thumb.url
+                });
+                video.thumb = thumb.url;
+                this.toLoad += 1;
+                _results1.push($thumb.on('load', null, video, this.addResult));
+              }
+              return _results1;
+            }).call(this));
+          }
+          return _results;
+        } else {
+          App.error('no more video results');
+          return App.loader.hide();
+        }
+      } else {
+        return this.youtubeError();
+      }
+    };
+
+    ResultsView.prototype.addResult = function(e) {
+      var result, result_view;
+      this.loaded += 1;
+      App.loader.progress(this.toLoad / this.loaded);
+      if (this.loaded === this.toLoad) {
+        this.toLoad = this.loaded = 0;
+        this.ready = true;
+        App.loader.hide();
+      }
+      result = new Result({
+        raw: e.data
+      });
+      result_view = new ResultView({
+        model: result
+      });
+      return this.$el.append(result_view.el);
+    };
+
+    return ResultsView;
+
+  })(Backbone.View);
+  
+}});
+
+window.require.define({"views/search": function(exports, require, module) {
+  var App, ResultsView, SearchView, template,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  App = require('app');
+
+  ResultsView = require('views/results');
 
   template = require('views/templates/search');
 
@@ -557,7 +785,6 @@ window.require.define({"views/search": function(exports, require, module) {
       this.$input.attr('placeholder', this.randomPlaceholder());
       this.input.focus();
       this.termChange();
-      console.log(this);
       this.model.on('change:results', this.renderResults);
       this.model.on('change:term', this.termChange);
       return this;
@@ -604,13 +831,24 @@ window.require.define({"views/search": function(exports, require, module) {
     };
 
     SearchView.prototype.renderResults = function() {
+      var _this;
       if (this.model.get('results')) {
         this.$el.addClass('results');
         this.lockInput(true);
-        return App.loader.show(false);
+        App.loader.show(false);
+        this.results = new ResultsView({
+          term: this.model.get('term')
+        });
+        this.$el.append(this.results.el);
+        _this = this;
+        return this.results.on('fail', function() {
+          return _this.model.cancel();
+        });
       } else {
         this.$el.removeClass('results');
-        return this.lockInput(false);
+        this.lockInput(false);
+        this.results.destroy();
+        return App.loader.hide();
       }
     };
 
@@ -666,9 +904,35 @@ window.require.define({"views/templates/option": function(exports, require, modu
 window.require.define({"views/templates/result": function(exports, require, module) {
   module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
     helpers = helpers || Handlebars.helpers;
-    var buffer = "", foundHelper, self=this;
+    var buffer = "", stack1, foundHelper, self=this, functionType="function", helperMissing=helpers.helperMissing, undef=void 0, escapeExpression=this.escapeExpression;
 
 
+    buffer += "<img alt=\"Thumbnail: ";
+    foundHelper = helpers.title;
+    stack1 = foundHelper || depth0.title;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\" src=\"";
+    foundHelper = helpers.thumb;
+    stack1 = foundHelper || depth0.thumb;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "thumb", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">\n<div>\n  <h2>";
+    foundHelper = helpers.title;
+    stack1 = foundHelper || depth0.title;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "title", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</h2>\n  <p>\n    Uploaded by <a href=\"https://youtube.com/user/";
+    foundHelper = helpers.author;
+    stack1 = foundHelper || depth0.author;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "author", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "\">";
+    foundHelper = helpers.author;
+    stack1 = foundHelper || depth0.author;
+    if(typeof stack1 === functionType) { stack1 = stack1.call(depth0, { hash: {} }); }
+    else if(stack1=== undef) { stack1 = helperMissing.call(depth0, "author", { hash: {} }); }
+    buffer += escapeExpression(stack1) + "</a>\n  </p>\n</div>\n";
     return buffer;});
 }});
 
@@ -678,6 +942,6 @@ window.require.define({"views/templates/search": function(exports, require, modu
     var foundHelper, self=this;
 
 
-    return "<h1>MusicThingy</h1>\n<span><span>Play some</span></span> <input autocomplete=\"off\"><a class=\"cancel\">&times;</a>\n<p>Who's your favourite band or musician?</p>\n<a class=\"go\">Go &gt;</a>\n<ul id=\"results\"></ul>\n";});
+    return "<header>\n  <h1>MusicThingy</h1>\n  <span><span>Play some</span></span> <input autocomplete=\"off\"><a class=\"cancel\">&times;</a>\n  <p>Who's your favourite band or musician?</p>\n  <a class=\"go\">Go &gt;</a>\n</header>\n<ul id=\"results\"></ul>\n";});
 }});
 

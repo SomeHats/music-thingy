@@ -1,7 +1,5 @@
 App = require 'app'
-Results = require 'collections/results'
-Result = require 'models/result'
-ResultView = require 'views/result'
+ResultsView = require 'views/results'
 template = require 'views/templates/search'
 
 module.exports = class SearchView extends Backbone.View
@@ -25,8 +23,6 @@ module.exports = class SearchView extends Backbone.View
     @input.focus()
 
     @termChange()
-
-    console.log @
     
     @model.on 'change:results', @renderResults
     @model.on 'change:term', @termChange
@@ -68,9 +64,20 @@ module.exports = class SearchView extends Backbone.View
       @$el.addClass 'results'
       @lockInput true
       App.loader.show(false)
+      @results = new ResultsView
+        term: @model.get 'term'
+      @$el.append @results.el
+
+      # Scope hack
+      _this = @
+
+      @results.on 'fail', -> 
+        _this.model.cancel()
     else
       @$el.removeClass 'results'
       @lockInput false
+      @results.destroy()
+      App.loader.hide()
 
   termChange: ->
     @input.value = @model.get 'term'

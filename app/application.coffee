@@ -27,3 +27,7 @@ module.exports = class Application extends Backbone.View
     search_view = new SearchView
       el: $('#search')
       model: App.search
+
+    # Automate:
+    App.search.set 'term', 'Coldplay'
+    App.search.go()

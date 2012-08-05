@@ -225,6 +225,7 @@ body {
 }
 body {
   background-color: #000;
+  overflow: hidden;
 }
 #container {
   height: 100%;
@@ -364,23 +365,98 @@ body {
   -webkit-box-shadow: 0 0 5px #fff, 0 0 5px rgba(255,255,255,0.8);
   box-shadow: 0 0 5px #fff, 0 0 5px rgba(255,255,255,0.8);
 }
+#results {
+  width: 740px;
+  margin: auto;
+  list-style: none;
+  padding: 0;
+  font-size: 26px;
+}
+#results li {
+  width: 740px;
+  padding-bottom: 20px;
+  display: table;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.6);
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  cursor: pointer;
+}
+#results div {
+  display: table-cell;
+  vertical-align: middle;
+  width: 100%;
+}
+#results h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+#results img {
+  float: left;
+  -webkit-box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  -webkit-transform: scale(0.95);
+  -moz-transform: scale(0.95);
+  -o-transform: scale(0.95);
+  -ms-transform: scale(0.95);
+  transform: scale(0.95);
+  margin-right: 20px;
+  -webkit-transition: all 0.25s ease;
+  -moz-transition: all 0.25s ease;
+  -o-transition: all 0.25s ease;
+  -ms-transition: all 0.25s ease;
+  transition: all 0.25s ease;
+}
+#results li:hover img {
+  -webkit-transform: scale(1);
+  -moz-transform: scale(1);
+  -o-transform: scale(1);
+  -ms-transform: scale(1);
+  transform: scale(1);
+}
+#results p {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  font-size: 14px;
+  text-shadow: 0 px 3px rgba(0,0,0,0.6);
+  position: static;
+  -webkit-transition: all 0.5s ease;
+  -moz-transition: all 0.5s ease;
+  -o-transition: all 0.5s ease;
+  -ms-transition: all 0.5s ease;
+  transition: all 0.5s ease;
+  margin: 0;
+}
+#results a,
+#results a:hover {
+  color: #fff;
+}
+#results a:hover {
+  text-decoration: none;
+}
 .slideUpFade,
-#search > span,
-#search input,
-#search p {
+#search header > span,
+#search header input,
+#search header p {
   -webkit-animation: SlideUpFade 0.5s ease;
   -moz-animation: SlideUpFade 0.5s ease;
   -o-animation: SlideUpFade 0.5s ease;
   -ms-animation: SlideUpFade 0.5s ease;
   animation: SlideUpFade 0.5s ease;
 }
-#search {
+#search header {
   font-size: 52px;
   font-weight: 100;
   text-align: center;
   text-shadow: 0 1px 5px #000;
 }
-#search h1 {
+#search header h1 {
   margin: 100px 0;
   font-size: 140px;
   font-weight: 100;
@@ -397,11 +473,11 @@ body {
   -ms-animation: DropInFade 0.5s ease;
   animation: DropInFade 0.5s ease;
 }
-.results#search h1 {
+.results#search header h1 {
   margin-top: 50px;
   margin-bottom: 10px;
 }
-#search > span {
+#search header > span {
   display: inline-block;
   overflow: hidden;
   vertical-align: top;
@@ -415,17 +491,17 @@ body {
   -ms-filter: none;
   filter: none;
 }
-#search > span > span {
+#search header > span > span {
   display: inline-block;
   width: 215px;
 }
-.results#search > span {
+.results#search header > span {
   width: 0;
   opacity: 0;
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   filter: alpha(opacity=0);
 }
-#search input {
+#search header input {
   overflow: hidden;
   background: transparent;
   color: #fff;
@@ -444,25 +520,25 @@ body {
   outline: none;
   width: 520px;
 }
-.results#search input {
+.results#search header input {
   width: 740px;
 }
-#search input:-moz-placeholder {
+#search header input:-moz-placeholder {
   color: rgba(255,255,255,0.7);
   font-weight: 100;
   text-shadow: 0 1px 5px #000;
 }
-#search input::-webkit-input-placeholder {
+#search header input::-webkit-input-placeholder {
   color: rgba(255,255,255,0.7);
   font-weight: 100;
   text-shadow: 0 1px 5px #000;
 }
-#search input:-ms-input-placeholder {
+#search header input:-ms-input-placeholder {
   color: rgba(255,255,255,0.7);
   font-weight: 100;
   text-shadow: 0 1px 5px #000;
 }
-#search a {
+#search header a {
   color: rgba(255,255,255,0.5);
   font-weight: 300;
   -webkit-transition: all 0.5s ease;
@@ -477,16 +553,16 @@ body {
   filter: alpha(opacity=0);
   pointer-events: none;
 }
-#search a:hover {
+#search header a:hover {
   color: #fff;
 }
-.valid#search a {
+.valid#search header a {
   opacity: 1;
   -ms-filter: none;
   filter: none;
   pointer-events: auto;
 }
-#search p {
+#search header p {
   font-size: 20px;
   font-weight: 300;
   padding-top: 20px;
@@ -499,24 +575,24 @@ body {
   transition: all 0.5s ease;
   pointer-events: none;
 }
-.valid#search p {
+.valid#search header p {
   opacity: 0;
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   filter: alpha(opacity=0);
 }
-#search .go {
+#search header .go {
   margin-top: 15px;
   display: block;
-  position: absolute;
   width: 100%;
 }
-.results#search .go {
+.results#search header .go {
   opacity: 0;
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=0);
   filter: alpha(opacity=0);
   pointer-events: none;
+  margin: 0;
 }
-#search .cancel {
+#search header .cancel {
   position: relative;
   left: -30px;
   width: 0;
