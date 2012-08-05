@@ -23,15 +23,38 @@ module.exports = class Search extends Backbone.View
     @$input.attr 'placeholder', @randomPlaceholder()
     @input.focus()
 
-    @$input.on 'change keyup focus blur', @inputChange
+    @inputChange()
+
+    @
+
+  events:
+    'click .cancel': 'cancel'
+    'change input': 'inputChange'
+    'keyup input': 'inputChange'
+    'click .go': 'go'
+
+  valid: false
 
   inputChange: (e) ->
     str = @input.value
     str = str.trim() if str.trim
     if str.length > 0
       @$el.addClass 'valid'
+      @valid = true
     else
       @$el.removeClass 'valid'
+      @valid = false
+
+    if e && e.which && e.which == 13
+      @go()
+
+  cancel: ->
+    @input.value = ''
+    @inputChange()
+
+  go: ->
+    if @valid
+      alert 'Go!'
 
   randomPlaceholder: ->
     @placeholders[Math.floor Math.random() * @placeholders.length]

@@ -487,8 +487,18 @@ window.require.define({"views/search": function(exports, require, module) {
       this.input = this.$input[0];
       this.$input.attr('placeholder', this.randomPlaceholder());
       this.input.focus();
-      return this.$input.on('change keyup focus blur', this.inputChange);
+      this.inputChange();
+      return this;
     };
+
+    Search.prototype.events = {
+      'click .cancel': 'cancel',
+      'change input': 'inputChange',
+      'keyup input': 'inputChange',
+      'click .go': 'go'
+    };
+
+    Search.prototype.valid = false;
 
     Search.prototype.inputChange = function(e) {
       var str;
@@ -497,9 +507,25 @@ window.require.define({"views/search": function(exports, require, module) {
         str = str.trim();
       }
       if (str.length > 0) {
-        return this.$el.addClass('valid');
+        this.$el.addClass('valid');
+        this.valid = true;
       } else {
-        return this.$el.removeClass('valid');
+        this.$el.removeClass('valid');
+        this.valid = false;
+      }
+      if (e && e.which && e.which === 13) {
+        return this.go();
+      }
+    };
+
+    Search.prototype.cancel = function() {
+      this.input.value = '';
+      return this.inputChange();
+    };
+
+    Search.prototype.go = function() {
+      if (this.valid) {
+        return alert('Go!');
       }
     };
 
